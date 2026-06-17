@@ -37,29 +37,59 @@ copilot plugin marketplace add obra/superpowers-marketplace
 copilot plugin install superpowers@superpowers-marketplace
 ```
 
+## How it works
+
+brainiac-dev is the **conductor** — it owns the dev pipeline skeleton and tells Claude
+WHEN to use superpowers and WITH WHAT context. It does not replace superpowers. It
+delegates.
+
+```
+┌──────────────────────────────────────────────────────┐
+│               brainiac-dev (governance)               │
+│                                                      │
+│  /brainiac-dev:develop    pick task → TDD → impl →   │
+│                           debug → review → verify →  │
+│                           handoff → next              │
+│  brainiac check           pre-commit hook gate        │
+│                                                      │
+│  brainiac-dev delegates to:                           │
+│    └─ superpowers  → HOW to build (TDD, debug,        │
+│                       review, verify)                 │
+└──────────────────────────────────────────────────────┘
+```
+
+| brainiac-dev provides | superpowers provides |
+|---|---|
+| WHAT to build | HOW to build it |
+| Spec-driven governance | TDD discipline |
+| Cross-repo contracts | Systematic debugging |
+| Freshness + drift gates | Code review process |
+| Artifact governance (ONE WAY) | Verification before merge |
+| Pre-commit enforcement gate | Branch management |
+
 ## What's included
 
 ### Commands (Claude Code slash-commands)
 
 | Command | What it does |
 |---|---|
-| `/brainiac:develop` | Full dev session: pick a task → TDD → implement → debug → review → verify → handoff → next |
-| `/brainiac:analyze` | Cross-artifact traceability + symbol-resolution gate for a spec |
-| `/brainiac:clarify` | Resolve `[NEEDS-CLARIFICATION]` markers in a spec |
-| `/brainiac:contract` | Show the API/schema/interface a task promises to expose |
-| `/brainiac:debug` | Systematic debugging with brainiac-aware context |
-| `/brainiac:ground` | Inventory the repo + provision PII-free steering docs |
-| `/brainiac:handoff` | Grade harness, install gate, publish status, bootstrap TDD |
-| `/brainiac:init` | Provision the brainiac convention — dry-run first |
-| `/brainiac:migrate` | Roll provisioned repos forward to current convention version |
-| `/brainiac:plan` | Validate + foundations-first phase a spec's tasks.md graph |
-| `/brainiac:quick` | Escape hatch — skips ceremony, keeps TDD/verification/gates |
-| `/brainiac:reconcile` | Read-only drift: live tasks.md vs published status.json |
-| `/brainiac:reflect` | Review captured friction, surface evidence-ranked suggestions |
-| `/brainiac:sequencer` | Detect dangling cross-repo edges + inject contract-consumer edges |
-| `/brainiac:specify` | Scaffold a spec the ONE WAY into specs/EPIC-####-slug/ |
-| `/brainiac:status` | Cross-repo task dashboard — reads status.json across repos |
-| `/brainiac:tasks` | Validate the cross-repo task graph for an epic |
+| `/brainiac-dev:develop` | Full dev session: pick a task → TDD → implement → debug → review → verify → handoff → next |
+| `/brainiac-dev:analyze` | Cross-artifact traceability + symbol-resolution gate for a spec |
+| `/brainiac-dev:clarify` | Resolve `[NEEDS-CLARIFICATION]` markers in a spec |
+| `/brainiac-dev:contract` | Show the API/schema/interface a task promises to expose |
+| `/brainiac-dev:debug` | Systematic debugging with brainiac-aware context |
+| `/brainiac-dev:ground` | Inventory the repo + provision PII-free steering docs |
+| `/brainiac-dev:handoff` | Grade harness, install gate, publish status, bootstrap TDD |
+| `/brainiac-dev:init` | Provision the brainiac convention — dry-run first |
+| `/brainiac-dev:migrate` | Roll provisioned repos forward to current convention version |
+| `/brainiac-dev:plan` | Validate + foundations-first phase a spec's tasks.md graph |
+| `/brainiac-dev:quick` | Escape hatch — skips ceremony, keeps TDD/verification/gates |
+| `/brainiac-dev:reconcile` | Read-only drift: live tasks.md vs published status.json |
+| `/brainiac-dev:reflect` | Review captured friction, surface evidence-ranked suggestions |
+| `/brainiac-dev:sequencer` | Detect dangling cross-repo edges + inject contract-consumer edges |
+| `/brainiac-dev:specify` | Scaffold a spec the ONE WAY into specs/EPIC-####-slug/ |
+| `/brainiac-dev:status` | Cross-repo task dashboard — reads status.json across repos |
+| `/brainiac-dev:tasks` | Validate the cross-repo task graph for an epic |
 
 ### CLI verbs (terminal)
 
@@ -93,7 +123,7 @@ brainiac setup          wire the marketplace + companion plugins on each host
 - **universal-ctags** (optional) — Swift symbol extraction only; if absent, `.swift` files
   are skipped with a clear advisory
 
-## Your first /brainiac:develop session
+## Your first /brainiac-dev:develop session
 
 ```sh
 # 1. Ground the repo (inventory it so brainiac knows what's there)
@@ -103,29 +133,17 @@ brainiac ground --root . --repo-name my-repo --scan
 brainiac specify "Add CSV Export" --repo . --brain-root .
 
 # 3. Start the dev pipeline
-/brainiac:develop
+/brainiac-dev:develop
 ```
 
 In Copilot CLI, invoke the `brainiac-develop` agent instead of the slash-command — same
 pipeline, different surface.
 
-## How superpowers fits in
+## Superpowers
 
 brainiac-dev **depends on** superpowers. On Claude Code it auto-installs (the
 `claude-plugins-official` marketplace is built-in). On Copilot CLI, `brainiac setup --dev`
 (or the manual commands above) installs it explicitly — same result either way.
-brainiac tells Claude **what** to build; superpowers provides **how** — TDD, systematic
-debugging, verification-before-completion, code review, and branch management.
-
-```
-brainiac-dev               superpowers
-─────────────               ───────────
-WHAT to build               HOW to build it
-Spec-driven governance      TDD discipline
-Cross-repo contracts        Systematic debugging
-Freshness + drift gates     Code review process
-Artifact governance         Verification before merge
-```
 
 ## How it's built
 
