@@ -1,0 +1,17 @@
+{
+  "name": "inewi",
+  "owner": {
+    "name": "inewi",
+    "email": "pomoc@inewi.pl"
+  },
+  "metadata": {
+    "description": "brainiac public distribution — the dev pipeline + governance gates, installable with no private-repo access."
+  },
+  "plugins": [
+    {
+      "name": "brainiac-dev",
+      "source": "./plugins/brainiac-dev",
+      "description": "brainiac dev pipeline + governance gates (public, org-agnostic)."
+    }
+  ]
+}
