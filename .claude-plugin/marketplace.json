@@ -4,6 +4,9 @@
     "name": "inewi",
     "email": "pomoc@inewi.pl"
   },
+  "allowCrossMarketplaceDependenciesOn": [
+    "claude-plugins-official"
+  ],
   "metadata": {
     "description": "brainiac public distribution — the dev pipeline + governance gates, installable with no private-repo access."
   },
