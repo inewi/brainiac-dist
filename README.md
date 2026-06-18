@@ -103,13 +103,19 @@ brainiac reconcile      read-only drift: live tasks.md vs published status.json
 brainiac handoff        grade harness + install gate + publish status + bootstrap
 brainiac init           show the convention-provisioning plan (dry-run)
 brainiac install-hooks  install the pre-commit + pre-push gates
+brainiac migrate        roll provisioned repos forward to the current convention version
+brainiac reflect        self-reflection loop (suggest-only, never auto-applies)
+brainiac sequencer      detect dangling cross-repo edges + inject contract-consumer edges
 brainiac setup          wire the marketplace + companion plugins on each host
 ```
 
 ### Background skills (loaded automatically by Claude Code)
 
 - **brainiac-conventions** — ONE WAY spec format, EARS notation, EPIC IDs, naming invariants
+- **cognitive-steering** — structured thinking patterns for planning, analyzing, and deciding
 - **cross-repo-governance** — the full pipeline with superpowers delegation at each phase
+- **guardrails** — pre-flight safety checks that catch dependency gaps, contract violations,
+  and spec drift before they become rework
 
 ### Agents (Copilot CLI)
 
@@ -118,10 +124,11 @@ brainiac setup          wire the marketplace + companion plugins on each host
 
 ## Requirements
 
-- **Claude Code** or **GitHub Copilot CLI**
+- **Claude Code** v2.1.110 or later, or **GitHub Copilot CLI**
 - **git** — grounding, handoff, and the check gate use git
 - **universal-ctags** (optional) — Swift symbol extraction only; if absent, `.swift` files
   are skipped with a clear advisory
+- **macOS or Linux** (arm64 or x64) — the prebuilt binary platforms
 
 ## Your first /brainiac-dev:develop session
 
