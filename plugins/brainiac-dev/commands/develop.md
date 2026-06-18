@@ -260,6 +260,10 @@ If no tasks remain, celebrate:
 > **All tasks complete.** spec EPIC-0042 is fully implemented.
 > Run `/brainiac:reconcile` to verify zero drift, then the PM can close the epic.
 
+Before ending the session, write a brief CC memory note summarizing: what was built,
+key implementation decisions, gotchas discovered, and any cross-repo notes. This
+persists knowledge for future sessions — the next agent starts informed, not from scratch.
+
 ---
 
 ## Session Invariants
