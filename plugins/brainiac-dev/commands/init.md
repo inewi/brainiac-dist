@@ -11,9 +11,9 @@ constitution**, and **coexist** with incumbent tooling. This is
 deprecate-not-delete. Work in two phases: PLAN (read-only), then — only after
 the operator confirms — APPLY.
 
-The brainiac CLI is available as `brainiac` (it maps to the plugin's bundled
-`dist/cli.js`). If the bare `brainiac` command is not on PATH, fall back to
-`npx --no-install brainiac` for every invocation below.
+The brainiac CLI is available as `brainiac` (on PATH after install; within Claude Code the plugin
+routes the command to its bundled CLI). In repos that vendor the brainiac npm package as a
+devDep, `npx --no-install brainiac` also works.
 
 ## Phase 1 — PLAN (read-only, no mutation)
 

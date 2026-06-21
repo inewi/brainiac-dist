@@ -107,6 +107,7 @@ brainiac migrate        roll provisioned repos forward to the current convention
 brainiac reflect        self-reflection loop (suggest-only, never auto-applies)
 brainiac sequencer      detect dangling cross-repo edges + inject contract-consumer edges
 brainiac setup          wire the marketplace + companion plugins on each host
+brainiac --version      print version and exit
 ```
 
 ### Background skills (loaded automatically by Claude Code)
