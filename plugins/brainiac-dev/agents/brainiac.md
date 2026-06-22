@@ -16,7 +16,7 @@ two multi-phase pipelines, defer to the dedicated agents: ship → `brainiac-shi
 > Run every brainiac CLI verb as `npx --no-install brainiac <verb>` (it is not a global binary).
 
 For conventions and cross-repo rules, lean on the installed brainiac skills:
-`brainiac-conventions` and `cross-repo-governance`. For the Copilot
+`conventions` and `cross-repo-governance`. For the Copilot
 tool-name equivalents of any Claude tool an instruction names (Read/Edit/Bash/Skill/...), see
 `references/copilot-tools.md` in the `cross-repo-governance` skill.
 

@@ -112,7 +112,7 @@ brainiac --version      print version and exit
 
 ### Background skills (loaded automatically by Claude Code)
 
-- **brainiac-conventions** — ONE WAY spec format, EARS notation, EPIC IDs, naming invariants
+- **conventions** — ONE WAY spec format, EARS notation, EPIC IDs, naming invariants
 - **cognitive-steering** — structured thinking patterns for planning, analyzing, and deciding
 - **cross-repo-governance** — the full pipeline with superpowers delegation at each phase
 - **guardrails** — pre-flight safety checks that catch dependency gaps, contract violations,

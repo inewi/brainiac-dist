@@ -1,5 +1,5 @@
 ---
-name: brainiac-conventions
+name: conventions
 description: brainiac ONE WAY conventions — spec structure, EARS notation, ID minting, invariants, freshness stamps, and contract-before-consumer. Apply when authoring or reviewing specs, tasks, initiatives, or epics in a brainiac-conformant repo.
 user-invocable: false
 ---
