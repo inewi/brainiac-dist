@@ -92,7 +92,10 @@ Report what you're building, why, and where in the codebase it fits:
 >
 > Dependencies: T-001 (DB schema ✓), T-002 (upload service ✓), T-003 (api contract ✓).
 >
-> Ready to start?
+> Ready to start? (Answer `yes` to begin, or `grill` to stress-test the design first.)
+
+If the developer answers `grill`, run Step 3.5 before starting. Otherwise skip straight
+to stamping the task start below.
 
 Once the developer confirms, stamp the task start so handoff can record a real
 duration. Pass the **same `--repo`** you will pass to handoff at Step 9 — the start
@@ -101,6 +104,34 @@ marker must land where handoff reads it, or the real duration is silently lost:
 ```bash
 brainiac task-start --task-id <TASK_ID> --repo "<repo>"
 ```
+
+---
+
+## Step 3.5: Grill the Design — Optional, Before TDD
+
+This step is **opt-in and never a gate** — a developer who wants flow answers `yes` at
+Step 3 and incurs zero new ceremony. It exists because the PM-authored spec *deferred*
+its uncertain decisions as `[NEEDS-CLARIFICATION]` markers; nothing between "understand
+the task" and the first failing test has attacked the design's decision tree. Grilling
+here catches a flawed approach **before** TDD at Step 4 locks it in.
+
+Invoke the grilling discipline, scoped to the chosen task:
+
+```
+Skill({skill: "brainiac:grill"})
+```
+
+It interviews you one question at a time, walking every branch of the task's `design.md`,
+recommending an answer for each, and self-answering from `.brainiac/steering/` + the spec
+where it can. Record any unresolved branch as a `[NEEDS-CLARIFICATION]` marker
+(`/brainiac:clarify` resolves those — grill only adds them) and any hard-to-reverse,
+surprising, real-trade-off decision under `## Open Decisions` in `design.md`. There is
+**no mandated clarify re-loop before the first failing test** — the markers are a
+side effect for the next clarify pass, not a forced round-trip; you stay in flow.
+
+You can also run this any time outside the session with `/brainiac:grill --task <ID>`
+(or `--epic`, or a spec dir). When the design feels genuinely shared, proceed to
+`brainiac task-start` and Step 4.
 
 ---
 
