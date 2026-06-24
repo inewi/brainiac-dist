@@ -50,6 +50,20 @@ Run this from the root of the target repo (the web or billing clone), not from t
 
 2. Confirm `.brainiac/` was written and that `.gitignore` now ignores `.brainiac/*` (the directory contents) while un-ignoring `.brainiac/status.json` (so the manifest is the one tracked artifact). Ignoring the contents with `.brainiac/*` — rather than the directory itself with `.brainiac/` — is what lets the `!.brainiac/status.json` negation take effect; git cannot re-include a file beneath a directory that is itself excluded.
 
+## Batch — ground every reference repo at once
+
+On the PM / brain side you usually want to ground **all** the cloned reference repos in one pass, not one at a time. From the brain repo root:
+
+```bash
+brainiac ground --all
+```
+
+This reuses the references catalog as the source of truth: it grounds every repo cloned under `.references/`, skips any catalog entry that is not cloned (reported, never grounded), and runs the same HARD per-repo PII gate — a halt on one repo is reported and the batch **continues** with the rest.
+
+`--all` is **idempotent and stale-aware**: a repo whose steering still matches its current `HEAD` is left untouched (reported `fresh`), and only repos whose `HEAD` moved since they were grounded get re-grounded (reported `refreshed`). That makes **refresh and initial grounding the same command** — after a `brainiac references` pull moves some HEADs, just re-run `brainiac ground --all` and only what changed is re-grounded. There is no background re-grounder; refresh is this one explicit, operator-visible command.
+
+Flags: `--only <csv>` (restrict to named repos), `--force` (re-ground even `fresh` repos), plus `--dry-run` and `--scan` (same meaning as the single-repo run). The command exits non-zero if any repo halted on the PII gate, so CI and the agent notice. Run it from the brain root — outside a brain checkout (no `.references/`) it refuses with a clear message.
+
 ## Notes
 
 - The inventory uses an LSP language server (`typescript-language-server --stdio`) for the TypeScript adapter only. C#/.NET is deferred this phase and surfaces as an out-of-scope note rather than failing the run.
