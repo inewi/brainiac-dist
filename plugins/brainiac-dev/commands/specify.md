@@ -62,7 +62,7 @@ integrated mockup/prototyping pipeline with three tiers:
 | Tier | What | When |
 |---|---|---|
 | 1 | `## Screen structures` section in `design.md` | Always |
-| 2 | Wireframes (SVG flow diagrams) in `mockups/wireframes/` | Agent-suggested |
+| 2 | Wireframes (Mermaid flow + HTML/CSS) in `mockups/wireframes/` | Agent-suggested |
 | 3 | Detailed mockups in `mockups/detailed/` | Agent-suggested |
 
 ### 3a. Write `requirements.md`
@@ -93,15 +93,26 @@ If PM confirms, go to step 3e (design.md) with "No UI changes."
 guessing. On reverse mismatch (agent detects UI, PM disagrees), PM enters [n]
 and agent records the decision in design.md.
 
+**Record the verdict.** Set `ui_impact: detected` or `ui_impact: none` in `design.md`
+frontmatter (replacing the `<detected | none — declare one>` placeholder), and write the
+one-line reason into `## Screen structures`. A flow that adds or changes a sign-in,
+consent, account-linking, or any user-facing screen is **`detected`** even when the bulk
+of the work is auth/token/back-end plumbing (e.g. SSO/OIDC) — the visible screen is the
+UI surface. When `detected`, you must produce a mockup (Tier 2/3) or record a justified
+`UI-WAIVER:` line, or the spec gate (`check --spec`, `analyze`, `handoff`) will fail.
+
 ### 3c. Generate wireframes (if PM confirmed)
 
-Generate low-fidelity SVG wireframes into `mockups/wireframes/`:
+Generate low-fidelity wireframes into `mockups/wireframes/`:
 
-- **Screen flow diagram:** Screen connections (navigation, modals, transitions)
-- **Per-screen layouts:** Box-level placement of key elements
-- **State coverage:** Loading, empty, error, populated for each screen
-- **Format:** SVG for web; device-frame SVG overlays for React Native (detected
-  from `design-system.md` render_target field)
+- **Screen flow diagram:** a **Mermaid** flowchart fenced in `design.md` (`flowchart`),
+  showing screen connections (navigation, modals, transitions). Mermaid renders natively
+  in GitHub PRs and diffs as text.
+- **Per-screen layouts:** low-fidelity **HTML/CSS** into `mockups/wireframes/` — semantic
+  boxes for element placement; opens in any browser, no build step.
+- **State coverage:** Loading, Empty, Error, Populated for each screen.
+- **React Native:** an HTML/CSS phone-frame mock for the low-fi tier (the `render_target`
+  field in `design-system.md` still selects the RN branch; hi-fi stays JSX).
 
 Present: "Wireframes generated. Review and approve? [Y/n]"
 
@@ -112,8 +123,8 @@ Present: "Wireframes generated. Review and approve? [Y/n]"
 changes and re-presents. After 3 rounds without agreement, record the
 disagreement in design.md under `## Open Decisions` and proceed.
 
-**Fallback:** If SVG generation exceeds token limit, fall back to ASCII-art
-diagrams with a note.
+**Fallback:** If token limit is reached, reduce screen count (most complex first)
+and note the limitation.
 
 ### 3d. Generate detailed mockups (if PM confirmed)
 
@@ -125,16 +136,26 @@ Detect design system from `.brainiac/steering/design-system.md`:
 - [n] Skip, wireframes are sufficient
 - [c] Custom: specify a different component library
 
+**Use the design specialist.** On Claude Code, invoke the `frontend-design` skill
+(`Skill({skill: "frontend-design:frontend-design"})`) BEFORE authoring `mockups/detailed/`
+— it supplies the production-grade aesthetic bar (distinctive typography, cohesive color,
+purposeful composition) and avoids generic AI output. On a host that cannot ingest skills
+(e.g. Copilot CLI), fall back to authoring the mockups inline per the constraints below.
+brainiac owns the contract (PII `@example.com`, WCAG 2.1, design-system tokens from
+`.brainiac/steering/design-system.md`, the `[-- ComponentName (NEW) --]` placeholder +
+auto-task rule); the skill supplies the taste. For the low-fi wireframe tier, tell it to
+stay **restrained** (schematic, not maximalist).
+
 Generate hi-fi mockups using design system components into `mockups/detailed/`:
 
-- **Web:** HTML+CSS or high-fidelity SVG using design system tokens
+- **Web:** HTML+CSS using design system tokens
 - **React Native:** JSX+StyleSheet or layout JSON with Yoga-compatible flexbox
 
 **PII-safe content:** All emails use @example.com. All URLs use
 <http://example.com>. Never use real values from inventory or source files.
 
 **Accessibility:** WCAG 2.1 minimums (44×44 touch targets, focus outlines,
-contrast ratios). SVG mockups: `role="img"`, `aria-label`. React Native:
+contrast ratios). HTML/SVG-free mockups use semantic landmarks + `aria-label`. React Native:
 `accessibilityRole`, `accessibilityLabel`, `accessibilityState`.
 
 **Iteration:** Up to 3 rounds (same protocol as wireframes).

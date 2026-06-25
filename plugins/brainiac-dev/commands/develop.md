@@ -221,7 +221,24 @@ cross-repo contract adherence.
 If the review finds issues, loop back to Step 5 (implement) or Step 6 (debug).
 Do not proceed past a failing review.
 
-**[CHECKPOINT]** Review approved. Ready to hand off.
+**[CHECKPOINT]** Review approved. Reconcile the design (if UI), then commit.
+
+---
+
+## Step 8.4: Reconcile the Design (UI tasks only)
+
+If this task references a `mockups/` path AND the spec's `design.md` is
+`ui_impact: detected`, the implemented UI may have diverged from the mockup. Offer
+(never blocks):
+
+- **Update** `mockups/` + `## Screen structures` in `design.md` to match the as-built UI.
+- **Record divergence** under `## Open Decisions` in `design.md` (rationale stays with
+  the design).
+- **Skip.**
+
+Because this runs before Step 8.5 (Commit), any design/mockup edits ride the task's own
+commit. In a cross-repo epic, an as-built note here sharpens the still-unbuilt downstream
+repo's spec. This is reconciliation, not `grill` (grill is a pre-build attacker, Step 3.5).
 
 ---
 
