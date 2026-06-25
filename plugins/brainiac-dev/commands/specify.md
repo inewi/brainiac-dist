@@ -56,6 +56,10 @@ cat "<repo>/.brainiac/steering/product.md"
 cat "<repo>/.brainiac/steering/design-system.md"
 ```
 
+If the epic links a research artifact (its `research:` field / `## Research` section points
+at `research/<NNNN>-<slug>/`), read that `report.md` too and cite it for any non-obvious
+design decision — a sourced claim beats an unsourced one.
+
 Then fill the scaffolded files in `specs/EPIC-####-slug/`. The spec supports an
 integrated mockup/prototyping pipeline with three tiers:
 

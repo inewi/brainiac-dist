@@ -45,5 +45,11 @@ On failure it lists each `plan: [<kind>] <detail>` and exits 1. Fix the cause in
 - `no-tasks` — `tasks.md` declares no `T-###` tasks. Author the checklist first
   (via `/brainiac:specify`).
 
+This gate checks the **structure** of the graph only — it cannot tell whether the tasks
+are the *right* ones (granularity, coverage-depth, value-sequencing). A structurally-valid
+plan can still be a poor plan, so pair a green gate with a human content review of the
+phased graph before sequencing (the PM ship pipeline offers this as an opt-in
+`[review / approve]` step right after the gate passes).
+
 `brainiac plan` is READ-ONLY — it writes nothing. Only report the plan as green
 once the gate exits 0 and the phases reflect the intended execution order.
