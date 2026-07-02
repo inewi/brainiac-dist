@@ -10,26 +10,16 @@ in a single command.
 
 ## Quick install
 
-**macOS / Linux:**
-
 ```sh
 curl -fsSL https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.sh | sh
 ```
 
-**Windows (PowerShell):**
+Installs the prebuilt `brainiac` CLI for macOS (arm64/x64) and Linux (x64/arm64) into
+`~/.local/bin`, then runs `brainiac setup --dev` to wire the `brainiac-dev` plugin +
+superpowers on each detected host (Claude Code or Copilot CLI). No inewi access required.
 
-```powershell
-irm https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.ps1 | iex
-```
-
-Installs the prebuilt `brainiac` CLI for macOS (arm64/x64), Linux (x64/arm64), and Windows (x64)
-into `~/.local/bin` (`%USERPROFILE%\.local\bin` on Windows), then runs `brainiac setup --dev`
-to wire the `brainiac-dev` plugin + superpowers on each detected host (Claude Code or Copilot
-CLI). No inewi access required.
-
-On macOS/Linux, pass `-s -- --no-setup` to install the CLI only, or `-s -- --bin-dir <path>` to
-change the install location. On Windows, download `install.ps1` and run it with `-NoSetup` /
-`-BinDir <path>` (piping to `iex` can't forward parameters).
+Pass `-s -- --no-setup` to install the CLI only, or `-s -- --bin-dir <path>` to change the
+install location.
 
 ### Plugin only (manual)
 
@@ -139,8 +129,7 @@ brainiac --version      print version and exit
 - **git** — grounding, handoff, and the check gate use git
 - **universal-ctags** (optional) — Swift symbol extraction only; if absent, `.swift` files
   are skipped with a clear advisory
-- **macOS, Linux, or Windows** — macOS/Linux arm64 or x64; Windows x64 (also runs on
-  Windows-on-ARM via x64 emulation) — the prebuilt binary platforms
+- **macOS or Linux** (arm64 or x64) — the prebuilt binary platforms
 
 ## Your first /brainiac-dev:develop session
 
