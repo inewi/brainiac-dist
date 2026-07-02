@@ -30,7 +30,7 @@ os=$(uname -s)
 case "$os" in
   Darwin) os=darwin ;;
   Linux) os=linux ;;
-  *) echo "brainiac: unsupported OS '$os' (use Scoop on Windows, or build from source)" >&2; exit 1 ;;
+  *) echo "brainiac: unsupported OS '$os' — on Windows run install.ps1 in PowerShell: irm https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.ps1 | iex (or build from source)" >&2; exit 1 ;;
 esac
 arch=$(uname -m)
 case "$arch" in

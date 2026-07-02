@@ -52,7 +52,7 @@ Rules:
 - Every task MUST have a `(depends_on: ...)` clause
 - Use `(depends_on: none)` for tasks with no predecessors
 - No cycles allowed (enforced by `brainiac plan`)
-- Tasks can depend across repos: `(depends_on: T-003 from billing)`
+- Tasks can depend across repos with a **repo-qualified** id: `(depends_on: billing:T-003)` (the sequencer injects these; single-repo `plan` treats a `<repo>:T-###` dep as external, not a missing local task)
 
 ## Contract-Before-Consumer
 
