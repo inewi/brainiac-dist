@@ -46,7 +46,7 @@ These intents map directly to a real `brainiac` CLI verb. Run each as
 | sequencer | `sequencer --repos <spec-dir-csv> --repo-names <csv> --auto-edge` |
 | specify | `specify "<title>" --epic <ID>` |
 | strategy | `strategy --north-star <text> --quarter YYYY-Qn --okrs <csv> --metrics <path>` (+ pm-product-strategy) |
-| task-start | `task-start --task-id T-###` |
+| task-start | `task-start --task-id T-### --epic EPIC-####` |
 | workspace | `workspace create --epic EPIC-#### --slug <s> --repo <name> --upstream <url> [--base <branch>]` · `workspace discard --epic EPIC-#### [--repo <name>] [--force]` |
 
 Gate everything with `npx --no-install brainiac check` before committing.

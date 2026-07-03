@@ -7,310 +7,266 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep, Skill
 
 $ARGUMENTS
 
-This is the complete developer workflow. It finds available tasks, guides you through
-implementation with superpowers, and handles the full cycle: TDD → implement → debug →
-review → verify → handoff. Runs as a continuous session — you stay in flow until the
-task is done.
+This is the complete developer workflow — git-native from the first step. It enumerates the
+real `epic/EPIC-####-slug` branches in your repo, drops you onto one, grounds, picks the next
+unblocked task, and runs the full cycle: TDD → implement → debug → review → verify → commit →
+push → handoff, then finalizes the epic when the last task lands. It runs as a continuous
+session — you stay in flow until the task is done.
+
+The mechanics are done by the `brainiac develop` verbs; the one thing that stays your judgment
+is the **P7 decision gate**. Run the CLI as bare `brainiac <verb>` (the prebuilt binary is on
+your PATH). If `$ARGUMENTS` names an epic (`EPIC-####`) or a task (`T-###`), jump straight to
+**P3** to enter that epic — P6 then resolves the named task (or the next unblocked one) once
+you're on-branch and grounded.
 
 ---
 
-## Step 1: Find Available Tasks
+## P0 — Resume express lane
 
-First, locate the per-epic workspace. Read `.brainiac/status.json` and check for
-`workspace_path`. If it's present and you're not already inside it, the epic's code
-lives in a dedicated workspace under the shape `.references/.epics/EPIC-####/<repo>` —
-`cd` there and re-run this step from inside it:
-
-```bash
-cd .references/.epics/EPIC-####/<repo>
-```
-
-If `workspace_path` is absent, proceed in the current directory.
-
-Read the current repo's state:
-
-```bash
-ls specs/EPIC-*/tasks.md 2>/dev/null
-```
-
-If specs exist, read the most recent spec's `tasks.md` and `.brainiac/status.json`.
-If no spec, read any `tasks.md` at the repo root and check `.brainiac/status.json`.
-
-For each task, determine its state:
-
-- **Available:** all `depends_on` tasks are complete in status.json. Tasks with
-  `(depends_on: none)` are always available.
-- **Blocked:** at least one dependency is not yet complete. List what's blocking it.
-- **Done:** marked complete in status.json.
-
-If `$ARGUMENTS` includes a task ID (e.g., `T-004`), skip directly to Step 3 with that task.
-Otherwise, present the list and let the developer choose.
-
----
-
-## Step 2: Choose a Task
-
-Present available tasks in priority order:
+Before enumerating anything, check for an in-flight claim. If **exactly one** live active-task
+marker exists under `.brainiac/active-tasks/<EPIC-####>/` **and** its epic matches your current
+branch, offer the express lane:
 
 ```text
-Available to develop:
-  ◻ T-004: API RODO — eksport dokumentacji (depends_on: T-001 ✓, T-002 ✓, T-003 ✓)
-  ◻ T-005: Dziennik audytu — rejestracja CRUD (depends_on: none)
-
-Blocked:
-  ◻ T-006: Integracja z panelem HR (blocked by: T-012 from web)
-
-Done:
-  ✓ T-001, T-002, T-003
+Resuming T-### on epic/EPIC-#### — [Enter] continue · [p] pick another
 ```
 
-Ask the developer which task to work on. If there's only one available task,
-auto-select it. If nothing is available, report what's blocking each task.
-
-Cross-repo dependencies (e.g. `blocked by: T-012 from web`) are resolved against
-the **brain roll-up** — derived from each repo's published `status.json` — not the
-local workspace status. The live status indicator is intra-repo only; cross-repo
-readiness always comes from the roll-up.
-
----
-
-## Step 3: Understand the Task
-
-Read the task description from `tasks.md`. Read the spec's `requirements.md` and
-`design.md` for context. Read the relevant source files from the grounded inventory
-(`.brainiac/steering/structure.md`).
-
-Report what you're building, why, and where in the codebase it fits:
-
-> **T-004: API RODO — eksport dokumentacji pracownika**
->
-> From requirements: WHEN pracownik składa wniosek RODO art. 15, the system shall
-> udostępnić kompletny zestaw dokumentów w czasie ≤ 72h.
->
-> From design: New endpoint `GET /api/employee/{id}/documents/export` in
-> `src/api/documents.ts`. Returns ZIP of PDF/A files with audit log.
->
-> Dependencies: T-001 (DB schema ✓), T-002 (upload service ✓), T-003 (api contract ✓).
->
-> Ready to start? (Answer `yes` to begin, or `grill` to stress-test the design first.)
-
-If the developer answers `grill`, run Step 3.5 before starting. Otherwise skip straight
-to stamping the task start below.
-
-Once the developer confirms, stamp the task start so handoff can record a real
-duration. Pass the **same `--repo`** you will pass to handoff at Step 9 — the start
-marker must land where handoff reads it, or the real duration is silently lost:
+Always require one `[Enter]` — never auto-continue silently after a context switch. On resume,
+still re-enter the already-current epic (a fresh clone is always ungrounded, so P4 must run every
+time), then jump straight to **P5 → P8**, skipping only the P1–P2 enumeration + menu:
 
 ```bash
-brainiac task-start --task-id <TASK_ID> --repo "<repo>"
+brainiac develop enter --epic EPIC-####
 ```
+
+If **2+** live markers exist, list them and let the developer pick — never auto-resume. With no
+live marker (or a branch mismatch, or an explicit `--pick`), fall through to **P1**.
 
 ---
 
-## Step 3.5: Grill the Design — Optional, Before TDD
+## P1 — Enumerate epic branches
 
-This step is **opt-in and never a gate** — a developer who wants flow answers `yes` at
-Step 3 and incurs zero new ceremony. It exists because the PM-authored spec *deferred*
-its uncertain decisions as `[NEEDS-CLARIFICATION]` markers; nothing between "understand
-the task" and the first failing test has attacked the design's decision tree. Grilling
-here catches a flawed approach **before** TDD at Step 4 locks it in.
-
-Invoke the grilling discipline, scoped to the chosen task:
-
-```
-Skill({skill: "brainiac:grill"})
-```
-
-It interviews you one question at a time, walking every branch of the task's `design.md`,
-recommending an answer for each, and self-answering from `.brainiac/steering/` + the spec
-where it can. Record any unresolved branch as a `[NEEDS-CLARIFICATION]` marker
-(`/brainiac:clarify` resolves those — grill only adds them) and any hard-to-reverse,
-surprising, real-trade-off decision under `## Open Decisions` in `design.md`. There is
-**no mandated clarify re-loop before the first failing test** — the markers are a
-side effect for the next clarify pass, not a forced round-trip; you stay in flow.
-
-You can also run this any time outside the session with `/brainiac:grill --task <ID>`
-(or `--epic`, or a spec dir). When the design feels genuinely shared, proceed to
-`brainiac task-start` and Step 4.
-
----
-
-## Step 4: TDD — Write the Failing Test
-
-Invoke the superpowers TDD skill:
-
-```
-Skill({skill: "superpowers:test-driven-development"})
-```
-
-Write a failing test first. The test must cover the acceptance criteria from
-the EARS requirement. Run it to confirm it fails.
-
-**brainiac context for TDD:**
-
-- The test file lives next to the implementation (e.g., `src/api/documents.test.ts`)
-- Cross-repo contracts are documented in the task's `[repo:name]` annotations
-- If the task depends on a contract from another repo, mock it based on the
-  contract description in that repo's tasks.md
-
-**[CHECKPOINT]** Test fails. Proceed to implementation.
-
----
-
-## Step 5: Implement — Make the Test Pass
-
-Write the minimal implementation to make the test pass. Follow brainiac conventions:
-
-- `_` prefix for unused parameters
-- kebab-case for files
-- All public functions exported for grounding inventory
-
-Run the test. If it passes, continue. If it fails, loop back.
-
-**[CHECKPOINT]** Test passes. Proceed to verification.
-
----
-
-## Step 6: Debug If Needed
-
-If tests fail or unexpected behavior appears, invoke:
-
-```
-Skill({skill: "superpowers:systematic-debugging"})
-```
-
-**brainiac context for debugging:**
-
-- Cross-repo: check `.references/` for upstream contracts
-- Spec drift: does the code match the spec? Run `brainiac reconcile`
-- Freshness: are steering docs stale? Run `brainiac check --freshness`
-- PII check: did the implementation add secrets? Run `brainiac check --scan`
-
----
-
-## Step 7: Verify — Confirm It's Done
-
-Invoke the superpowers verification skill:
-
-```
-Skill({skill: "superpowers:verification-before-completion"})
-```
-
-**brainiac-specific verification:**
-
-- Run `brainiac check` — passes all gates (paths, secrets, spec, freshness)
-- The implementation matches the EARS requirements exactly
-- No side effects on other tasks (check `depends_on` graph)
-- All new files follow brainiac naming conventions
-
-**[CHECKPOINT]** All gates pass. Ready for review.
-
----
-
-## Step 8: Code Review
-
-Invoke the superpowers code review skill:
-
-```
-Skill({skill: "superpowers:requesting-code-review"})
-```
-
-The review checks: correctness, test coverage, brainiac conventions compliance,
-cross-repo contract adherence.
-
-If the review finds issues, loop back to Step 5 (implement) or Step 6 (debug).
-Do not proceed past a failing review.
-
-**[CHECKPOINT]** Review approved. Reconcile the design (if UI), then commit.
-
----
-
-## Step 8.4: Reconcile the Design (UI tasks only)
-
-If this task references a `mockups/` path AND the spec's `design.md` is
-`ui_impact: detected`, the implemented UI may have diverged from the mockup. Offer
-(never blocks):
-
-- **Update** `mockups/` + `## Screen structures` in `design.md` to match the as-built UI.
-- **Record divergence** under `## Open Decisions` in `design.md` (rationale stays with
-  the design).
-- **Skip.**
-
-Because this runs before Step 8.5 (Commit), any design/mockup edits ride the task's own
-commit. In a cross-repo epic, an as-built note here sharpens the still-unbuilt downstream
-repo's spec. This is reconciliation, not `grill` (grill is a pre-build attacker, Step 3.5).
-
----
-
-## Step 8.5: Commit the Task
-
-Review approved. Commit the task's code on the epic branch (the pre-commit gate runs):
+Enumerate the epic-bearing branches (local + remote-tracking) with their one-line summary and
+progress, and render the JSON the verb emits:
 
 ```bash
-git add -A && git commit -m "feat(<area>): <T-ID> <short summary>"
+brainiac develop --list --json
 ```
 
-One commit per task keeps the epic branch a sequence of reviewable units.
+Each row is `EPIC-####  <title>  <summary>  done/total`. The result is a defined outcome, not a
+silent empty:
+
+- `empty: true` → print *"no epic branches — run `/brainiac:ship` first, or check you've
+  fetched."*
+- `offline: true` → a `git fetch` failed; proceed on local refs with an advisory, do **not**
+  abort. Pass `--fetch` to opt into a fresh `git fetch --all` before listing.
+
+Cross-repo dependencies surface here as **advisory only** — a `web:T-012 — state unknown from
+here` note derived from the dependency token alone. It never blocks a pick in single-repo scope;
+deterministic resolution only happens in a multi-repo/cockpit view.
 
 ---
 
-## Step 9: Handoff — Mark Complete
+## P2 — Epic menu
 
-Publish the completed task with the full form (handoff requires `--spec`; pass
-`--task-id` so the throughput ledger records the real duration captured at Step 3):
+From the P1 JSON, present one row per epic. Auto-select when there is exactly one epic;
+otherwise present the menu and let the developer choose which to work on.
+
+---
+
+## P3 — Pick, checkout, claim
+
+Drop onto the chosen epic. The verb resolves your scope for you (dev in-place vs a PM workspace
+clone — read from the gitignored `.brainiac/local.json` sidecar, never from `status.json`),
+checks out `epic/EPIC-####-slug`, and claims the marker:
 
 ```bash
-brainiac handoff --spec "specs/EPIC-####-slug" --repo "<repo>" --repo-name "<repo-name>" --task-id <TASK_ID>
+brainiac develop enter --epic EPIC-####
 ```
 
-This re-gates analyze, refreshes `status.json`, appends the real task duration to
-the throughput ledger (`repos/<repo-name>/throughput.jsonl`), and clears the start
-marker. When `--repo` is an epic workspace under `.references/.epics/`, handoff
-**auto-roots the ledger in the brain** (the path prefix before `.references/`), so
-durations survive a later `workspace discard` and reach the reflect loop — no extra
-flag needed. For unusual layouts outside that shape, pass `--ledger-root <brain-root>`
-explicitly; the ledger must never land inside a discardable workspace.
-
----
-
-## Step 9.5: Capture a Retro (best-effort)
-
-Right after handoff returns, record what this task hit. This is best-effort — it
-never blocks the session. Pass the friction tags that apply (closed vocabulary:
-`spec-ambiguous`, `missing-fixture`, `cross-repo-contract`, `tooling`,
-`gate-false-positive`, `skill-silent`, `skill-misleading`, `other`):
+**Dirty-tree policy:** if `git status --porcelain` is non-empty, `enter` refuses and prints the
+offending paths — it **never auto-stashes**. Stash explicitly and re-run:
 
 ```bash
-brainiac reflect capture --scope task --id <TASK_ID> --repo-name "<repo-name>" \
-  --friction "<comma-separated-tags>" --why-fought "<one line, no secrets>"
+git stash push -m brainiac-enter-EPIC-####
 ```
-
-Tag the *artifact or pipeline* condition, never an operator ("the skill was silent
-on X", not "I forgot X"). Omit `--friction` if the task was frictionless.
 
 ---
 
-## Step 10: Next Task or Done
+## P4 — Grounding verify
 
-Report what was accomplished:
+`.brainiac/steering/*` is gitignored, so a fresh clone is **always ungrounded**. `develop enter`
+verifies grounding on **every** entry path (including P0 resume) before any step reads steering:
 
-> **T-004 complete.** API RODO endpoint implemented (127 lines), 5 tests passing,
-> review approved. Status published.
->
-> Available next:
-> ◻ T-005: Dziennik audytu — rejestracja CRUD
->
-> Run `/brainiac:develop` to continue, or take a break — the pre-commit hook
-> keeps the gates up on every future commit.
+- **Steering absent** → `enter` hard-fails with the exact instruction. Run it, then re-enter:
 
-If no tasks remain, celebrate:
+  ```bash
+  brainiac ground --scan
+  ```
 
-> **All tasks complete.** spec EPIC-0042 is fully implemented.
-> Run `/brainiac:reconcile` to verify zero drift, then the PM can close the epic.
+- **Steering present but HEAD-stale** → an opt-in advisory `steering is N commits behind —
+  reground? [y/N]`, default skip. Never auto-re-ground on a HEAD your own commits moved.
 
-Before ending the session, write a brief CC memory note summarizing: what was built,
-key implementation decisions, gotchas discovered, and any cross-repo notes. This
-persists knowledge for future sessions — the next agent starts informed, not from scratch.
+---
+
+## P5 — Context bundle
+
+Context before code. Read the branch's `specs/EPIC-####-slug/requirements.md` and `design.md`
+(the "why"), plus any `## Open Decisions` / `[NEEDS-CLARIFICATION]` history, then re-gate
+traceability and probe the code region the task touches:
+
+```bash
+brainiac analyze --spec "specs/EPIC-####-slug"
+```
+
+Report what you're building, why, and where it fits before writing a line.
+
+---
+
+## P6 — Next unblocked task
+
+Read readiness from the same `develop --list --json` envelope — now that you are on-branch, each
+epic listing carries a `readiness` report ordered by phase then file order:
+
+```bash
+brainiac develop --list --json
+```
+
+Pick the first `AVAILABLE` task (a task with all local deps done). Auto-select when exactly one
+is available. Zero-available is a defined outcome:
+
+- **all blocked** → list each blocker (plus any cross-repo advisory) and stop.
+- **all done** → the epic is complete → route to **P9**.
+
+---
+
+## P7 — Decision gate
+
+This is the one step that stays your judgment — everything else is a verb.
+
+- **Tier 1 — readiness (auto, blocking):** the criteria are testable, deps are resolved, and no
+  blocking `[NEEDS-CLARIFICATION]` remains → auto-pass to **tackle**.
+- **Tier 2 — spec validity (opt-in, never a gate):** the arms are **tackle · grill · clarify**.
+  - **tackle** → proceed to P8.
+  - **grill** → opt-in, never a gate. The PM-authored spec *deferred* its uncertain decisions;
+    nothing between "understand the task" and the first failing test has attacked the design's
+    decision tree. Invoke the grilling discipline, scoped to the chosen task:
+
+    ```text
+    Skill({skill: "brainiac:grill"})
+    ```
+
+    It interviews you one branch at a time, self-answering from `.brainiac/steering/` + the spec
+    where it can, and records any unresolved branch as a `[NEEDS-CLARIFICATION]` marker (a side
+    effect for the next `/brainiac:clarify` pass — not a forced round-trip). When the design
+    feels genuinely shared, return to P8.
+  - **clarify** → resolve open markers with `/brainiac:clarify`, then re-gate.
+
+For a *true* re-spec — the task is built on a wrong premise — there is **no** lightweight
+task-level respec. Point at the epic-scoped, Amendments-stamping path and stop the flow:
+
+```bash
+brainiac revise --epic EPIC-#### --reason "<what's amiss + why>"
+```
+
+Advisories that never block: open markers / an in-flight amendment (epic validity); `reconcile`
+`head-moved` / `rollup-changed` (branch freshness). Single-candidate steps collapse to a
+one-line confirm.
+
+---
+
+## P8 — Stamp start and TDD
+
+Stamp the start so handoff can record a real duration. Pass `--epic` (namespaces the marker) and
+the **same `--repo`** you will pass to handoff below, or the duration is silently lost:
+
+```bash
+brainiac task-start --task-id <TASK_ID> --epic EPIC-#### --repo "<repo>"
+```
+
+Then run the inner loop:
+
+1. **TDD** — `Skill({skill: "superpowers:test-driven-development"})`. Write a failing test first
+   that covers the acceptance criteria from the EARS requirement, and run it to confirm it
+   fails. The failing test is the readiness proof — if the criteria can't be a red test, loop
+   back to P7. The test lives next to the implementation; if the task depends on another repo's
+   contract, mock it from that repo's `tasks.md` `[repo:name]` annotation. **CHECKPOINT** — test
+   fails.
+2. **Implement** — write the minimal implementation to pass the test, following brainiac
+   conventions: `_` prefix for unused-but-arity-required parameters, kebab-case files, all
+   public functions exported for the grounding inventory. Run the test; loop back if it fails.
+   **CHECKPOINT** — test passes.
+3. **Debug if needed** — `Skill({skill: "superpowers:systematic-debugging"})`. brainiac context:
+   check `.references/` for upstream contracts; `brainiac reconcile` for spec drift; `brainiac
+   check --freshness` for stale steering; `brainiac check --scan` for added secrets.
+4. **Verify** — `Skill({skill: "superpowers:verification-before-completion"})`. Run `brainiac
+   check` (passes paths, secrets, spec, freshness gates); confirm the implementation matches the
+   EARS requirements exactly and touches no other task's `depends_on` graph. **CHECKPOINT** — all
+   gates pass.
+5. **Code review** — `Skill({skill: "superpowers:requesting-code-review"})`. Correctness, test
+   coverage, brainiac conventions, cross-repo contract adherence. On findings, loop back to step
+   2 or step 3 — do not proceed past a failing review. **CHECKPOINT** — review approved.
+6. **Commit (path-scoped)** — stage **only** this task's paths — **never the whole tree** (no
+   blanket `-A` add) — so carried-across changes, other devs' merged work, and the churned
+   tracked `status.json` (which handoff owns) can't be swept into a task commit:
+
+   ```bash
+   git add -- <changed source and test paths>
+   git commit -m "feat(<area>): <T-ID> <short summary>"
+   ```
+
+   One commit per task keeps the epic branch a sequence of reviewable units. The pre-commit gate
+   runs automatically.
+7. **Handoff — mark complete and push** — publish the completed task. Handoff re-gates analyze,
+   refreshes `status.json`, appends the real duration to the throughput ledger, clears the start
+   marker, and (with `--push`) pushes the epic branch:
+
+   ```bash
+   brainiac handoff --spec "specs/EPIC-####-slug" --repo "<repo>" --repo-name "<repo-name>" \
+     --task-id <TASK_ID> --epic EPIC-#### --push
+   ```
+
+   The push is **write-access-aware** and **degrades, never throws**: on offline / protected /
+   no-write / non-fast-forward, the local commit stands, handoff prints *"committed locally on
+   `epic/EPIC-####-slug`; run `git fetch origin <branch> && git rebase origin/<branch>`
+   then retry"*, and exits 0. Add `--strict` to make a skipped push non-zero (for CI). Pushes are
+   plain `git push -u` — **never** `--force`. When `--repo` is a PM workspace under
+   `.references/.epics/`, handoff auto-roots the ledger in the brain so durations survive a
+   later `workspace discard`; pass `--ledger-root <brain-root>` only for layouts outside that
+   shape.
+8. **Capture a retro (best-effort)** — right after handoff returns, record what the task hit
+   (never blocks). Friction vocabulary: `spec-ambiguous`, `missing-fixture`,
+   `cross-repo-contract`, `tooling`, `gate-false-positive`, `skill-silent`, `skill-misleading`,
+   `other`:
+
+   ```bash
+   brainiac reflect capture --scope task --id <TASK_ID> --repo-name "<repo-name>" \
+     --friction "<comma-separated-tags>" --why-fought "<one line, no secrets>"
+   ```
+
+   Tag the *artifact or pipeline* condition, never an operator. Omit `--friction` if
+   frictionless.
+
+Report what was accomplished and loop back to **P6** for the next task, or continue to **P9**
+when the epic is done.
+
+---
+
+## P9 — Finalize the epic
+
+When P6 reports all tasks done and `reconcile` is clean, push the final state and flip the draft
+PR → **ready-for-review**:
+
+```bash
+brainiac handoff --finalize-epic --repo "<repo>" --base <base-branch>
+```
+
+This prints the PR URL. It does **not** auto-merge or auto-delete — review/CI merges, and the
+platform (or a later cleanup verb) deletes the branch.
+
+Before ending the session, write a brief CC memory note — what was built, key decisions,
+gotchas, cross-repo notes — so the next session starts informed. Run `/brainiac:develop` again
+to continue on another task or epic.
 
 ---
 
@@ -320,4 +276,6 @@ persists knowledge for future sessions — the next agent starts informed, not f
 2. **Never bypass a gate.** If `brainiac check` fails, fix it — don't skip.
 3. **Never merge without review.** `superpowers:requesting-code-review` is mandatory.
 4. **Always handoff.** Every completed task updates `status.json`.
-5. **One task per session.** Focus. Finish. Hand off. Then start the next.
+5. **Never `--force`-push and never blanket-stage (no `-A` add).** Pushes degrade gracefully;
+   commits stay path-scoped.
+6. **One task per session.** Focus. Finish. Hand off. Then start the next.
