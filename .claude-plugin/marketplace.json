@@ -12,8 +12,8 @@
   },
   "plugins": [
     {
-      "name": "brainiac-dev",
-      "source": "./plugins/brainiac-dev",
+      "name": "brainiac",
+      "source": "./plugins/brainiac",
       "description": "brainiac dev pipeline + governance gates (public, org-agnostic)."
     }
   ]

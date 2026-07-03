@@ -75,7 +75,7 @@ if (-not $NoSetup) {
     (Get-Command copilot -ErrorAction SilentlyContinue)
   if ($hasHost) {
     Write-Host "brainiac: wiring the dev plugin + superpowers (brainiac setup --dev)"
-    Write-Host "brainiac: cloning the brainiac-dev + superpowers marketplaces over the network — first run can take 10-30s..."
+    Write-Host "brainiac: cloning the brainiac + superpowers marketplaces over the network — first run can take 10-30s..."
     & $brainiac setup --dev
     if ($LASTEXITCODE -ne 0) {
       Write-Warning "brainiac: 'setup --dev' did not finish (exit $LASTEXITCODE) — re-run '$brainiac setup --dev' later"

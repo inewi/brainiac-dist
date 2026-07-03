@@ -78,7 +78,7 @@ esac
 if [ "$DO_SETUP" -eq 1 ]; then
   if command -v claude >/dev/null 2>&1 || command -v copilot >/dev/null 2>&1; then
     echo "brainiac: wiring the dev plugin + superpowers (brainiac setup --dev)"
-    echo "brainiac: cloning the brainiac-dev + superpowers marketplaces over the network — first run can take 10-30s..."
+    echo "brainiac: cloning the brainiac + superpowers marketplaces over the network — first run can take 10-30s..."
     "${BIN_DIR}/brainiac" setup --dev
     st=$?
     if [ $st -ne 0 ]; then
