@@ -13,7 +13,9 @@ verb and skill. Route each request to the matching brainiac CLI verb and/or skil
 two multi-phase pipelines, defer to the dedicated agents: ship → `brainiac-ship`, develop →
 `brainiac-develop`.
 
-> Run every brainiac CLI verb as `npx --no-install brainiac <verb>` (it is not a global binary).
+> Run every brainiac CLI verb as `npx --no-install brainiac <verb>`. On a `curl | sh` dev box
+> the prebuilt binary is on `PATH`, so bare `brainiac <verb>` also works — the `npx --no-install`
+> form is the portable one that never downloads a wrong package.
 
 For conventions and cross-repo rules, lean on the installed brainiac skills:
 `conventions` and `cross-repo-governance`. For the Copilot
@@ -45,6 +47,7 @@ These intents map directly to a real `brainiac` CLI verb. Run each as
 | reprioritize | `reprioritize` |
 | sequencer | `sequencer --repos <spec-dir-csv> --repo-names <csv> --auto-edge` |
 | specify | `specify "<title>" --epic <ID>` |
+| status | `status [--root <path>] [--json]` |
 | strategy | `strategy --north-star <text> --quarter YYYY-Qn --okrs <csv> --metrics <path>` (+ pm-product-strategy) |
 | task-start | `task-start --task-id T-### --epic EPIC-####` |
 | workspace | `workspace create --epic EPIC-#### --slug <s> --repo <name> --upstream <url> [--base <branch>]` · `workspace discard --epic EPIC-#### [--repo <name>] [--force]` |
@@ -55,7 +58,7 @@ Gate everything with `npx --no-install brainiac check` before committing.
 
 These intents have **no `brainiac` CLI verb**. In Claude they are slash-commands; in Copilot you
 perform the steps yourself (reading files, editing specs, invoking the mapped skill). The strings
-`clarify`, `contract`, `prioritize`, `quick`, `status`, `tasks`, `prd`, and `research` are NOT
+`clarify`, `contract`, `prioritize`, `quick`, `tasks`, `prd`, and `research` are NOT
 CLI verbs — passing any of them to `npx --no-install brainiac` exits non-zero with a usage error.
 Use the real underlying verb shown in the right column instead.
 
@@ -64,7 +67,6 @@ Use the real underlying verb shown in the right column instead.
 | clarify | Read the spec trio in `specs/EPIC-####-slug/`, find the `[NEEDS-CLARIFICATION]` markers, ask the operator at most 5 questions (one at a time), edit the spec in place, then re-gate with `npx --no-install brainiac check --spec specs/EPIC-####-slug`. |
 | contract | Read the task in the spec's `tasks.md`, extract what it publishes (API/schema/interface) from the contract keywords (export, expose, publish, api, endpoint, contract, interface, schema, openapi, grpc, proto, route, handler, provider), find its cross-repo consumers, and report the contract. |
 | tasks | Validate the cross-repo task graph via the real plan engine: `npx --no-install brainiac plan --spec epics/EPIC-####-slug/tasks.md`. |
-| status | Cross-repo dashboard from the published status. Run `npx --no-install brainiac reconcile` for live-vs-published drift, then read each repo's `.brainiac/status.json` and `tasks.md` `[repo:name]` edges to assemble the view; report blockers and the next available task. |
 | quick | Scale-adaptive escape hatch (single repo, no contract change, small diff). Run only the non-escapable real verbs: `npx --no-install brainiac specify "<title>" --repo <path>` → write the minimal spec trio + a TDD failing test → `npx --no-install brainiac check --spec <dir>` → `npx --no-install brainiac plan --spec <dir>` → `npx --no-install brainiac handoff --spec <dir> --repo <path>`. Never skip TDD, the verification check, or the secret/PII gate. |
 | prioritize | Invoke the `pm-execution` skill (RICE/prioritization frameworks), score the initiatives in `<brainRoot>/initiatives/*.md`, write the scores back to each initiative's frontmatter, then regenerate the roadmap with the real verb `npx --no-install brainiac reprioritize`. |
 | prd | Scaffold with `npx --no-install brainiac id mint EPIC` + `npx --no-install brainiac specify "<title>" --epic <ID>`, invoke the `pm-execution` skill for the PRD methodology, write it into `requirements.md` in EARS notation, then gate with `npx --no-install brainiac check --spec specs/EPIC-####-slug/`. |
@@ -105,6 +107,6 @@ First decide whether the intent has a real CLI verb (the "Verb table — real CL
 is skill-driven (the "Skill-driven intents — NO CLI verb" table and the pm-skills/superpowers
 maps). For a real verb, run it as `npx --no-install brainiac <verb>`. For a skill-driven intent,
 perform the documented steps yourself — invoke the mapped skill and use only the real underlying
-verbs (e.g. tasks → `plan --spec`, prioritize → `reprioritize`, status → `reconcile`) — and never
+verbs (e.g. tasks → `plan --spec`, prioritize → `reprioritize`) — and never
 invoke `npx --no-install brainiac` with a verb that is not in the real-verb table. For the full
 ship or develop pipelines, hand off to the `brainiac-ship` or `brainiac-develop` agent instead.

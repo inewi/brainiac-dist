@@ -55,16 +55,16 @@ delegates.
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│               brainiac (governance)               │
+│                brainiac (governance)                 │
 │                                                      │
-│  /brainiac:develop    pick task → TDD → impl →   │
-│                           debug → review → verify →  │
-│                           handoff → next              │
-│  brainiac check           pre-commit hook gate        │
+│  /brainiac:develop    enter epic branch → next task  │
+│                       → TDD → verify → push-per-task │
+│                       → finalize the epic            │
+│  brainiac check       pre-commit hook gate           │
 │                                                      │
-│  brainiac delegates to:                           │
-│    └─ superpowers  → HOW to build (TDD, debug,        │
-│                       review, verify)                 │
+│  brainiac delegates to:                              │
+│    └─ superpowers  → HOW to build (TDD, debug,       │
+│                       review, verify)                │
 └──────────────────────────────────────────────────────┘
 ```
 
@@ -83,11 +83,13 @@ delegates.
 
 | Command | What it does |
 |---|---|
-| `/brainiac:develop` | Full dev session: pick a task → TDD → implement → debug → review → verify → handoff → next |
+| `/brainiac:develop` | Full dev session, git-native from the first step: enter an epic branch → next unblocked task → TDD → push-per-task → finalize the epic |
 | `/brainiac:analyze` | Cross-artifact traceability + symbol-resolution gate for a spec |
 | `/brainiac:clarify` | Resolve `[NEEDS-CLARIFICATION]` markers in a spec |
 | `/brainiac:contract` | Show the API/schema/interface a task promises to expose |
 | `/brainiac:debug` | Systematic debugging with brainiac-aware context |
+| `/brainiac:grill` | Relentlessly stress-test an authored design before build (task, epic, or spec) |
+| `/brainiac:grill-me` | Free-form, anytime grill — stress-test any idea mid-conversation, writes nothing |
 | `/brainiac:ground` | Inventory the repo + provision PII-free steering docs |
 | `/brainiac:handoff` | Grade harness, install gate, publish status, bootstrap TDD |
 | `/brainiac:init` | Provision the brainiac convention — dry-run first |
@@ -104,11 +106,14 @@ delegates.
 ### CLI verbs (terminal)
 
 ```
-brainiac check          run the pre-commit gate (paths, secrets, spec lint, freshness)
+brainiac                bare in a real terminal: the interactive TUI cockpit (also: dash | tui)
+brainiac develop        --list enumerates epic branches + readiness; enter --epic starts one
+brainiac check          run the pre-commit gate (paths + secrets; --spec / --freshness opt-in)
 brainiac ground         inventory the repo + provision steering/status
 brainiac specify        scaffold a spec the ONE WAY
 brainiac plan           validate + phase the tasks.md graph
 brainiac analyze        read-only cross-artifact + symbol-resolution gate
+brainiac status         read-only cross-repo rollup (--json for the cockpit feed)
 brainiac reconcile      read-only drift: live tasks.md vs published status.json
 brainiac handoff        grade harness + install gate + publish status + bootstrap
 brainiac init           show the convention-provisioning plan (dry-run)
@@ -125,6 +130,7 @@ brainiac --version      print version and exit
 - **conventions** — ONE WAY spec format, EARS notation, EPIC IDs, naming invariants
 - **cognitive-steering** — structured thinking patterns for planning, analyzing, and deciding
 - **cross-repo-governance** — the full pipeline with superpowers delegation at each phase
+- **grill** — the relentless design stress-test behind `/brainiac:grill` and `/brainiac:grill-me`
 - **guardrails** — pre-flight safety checks that catch dependency gaps, contract violations,
   and spec drift before they become rework
 

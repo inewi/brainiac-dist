@@ -121,7 +121,10 @@ All tasks done → route to **P9**.
     can, and deposits any unresolved branch as a `[NEEDS-CLARIFICATION]` marker (a side effect
     for the next clarify pass, not a forced round-trip). When the design feels genuinely
     shared, return to P8.
-  - **clarify** → resolve open markers with `Skill({skill: "brainiac:clarify"})`, then re-gate.
+  - **clarify** → resolve open markers yourself — clarify has no skill or CLI verb: read the
+    spec's `[NEEDS-CLARIFICATION]` markers, ask the developer at most 5 questions (one at a
+    time), edit the spec in place, then re-gate with
+    `npx --no-install brainiac check --spec "specs/EPIC-####-slug"`.
 
 For a *true* re-spec — the task is built on a wrong premise — there is no lightweight
 task-level respec. Point at the epic-scoped, Amendments-stamping path and stop the flow:
