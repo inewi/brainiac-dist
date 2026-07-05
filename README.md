@@ -1,22 +1,30 @@
-# brainiac
+# brainiac — ship specs, not vibes
 
-The **developer surface** of brainiac — install the develop pipeline plus the shared governance
-gates with **no private-repo access, no npm, no PAT**. You get a prebuilt `brainiac` CLI for
-your platform and the `brainiac` plugin (Claude Code / Copilot CLI), which auto-installs
-**superpowers** as a dependency so TDD, debugging, code review, and verification all light up
-in a single command.
+**The planning brain for the agentic SDLC — dev surface.** brainiac turns tasks into grounded,
+gated, TDD-ready work your agents can execute — install the develop pipeline plus the shared
+governance gates with **no private-repo access, no npm, no PAT**.
+
+- **Grounded dev loop** — enter an epic branch, get the next unblocked task, TDD it, push per task, finalize the epic.
+- **Gates that block drift** — path-deprecation + secret/PII gates run in the pre-commit hook; a red gate stops the commit, not the retro.
+- **TDD + verification every task** — delegated to superpowers, never skipped.
+- **Mission control included** — a TUI cockpit over the portfolio: pulses, XRAY contracts, roadmap, drift.
+- **Zero access requirements** — a prebuilt binary plus the brainiac + superpowers plugins, nothing else.
+
+[Quick install](#quick-install) · [What you get](#what-you-get) · [How it works](#how-it-works) · [Reference](#reference) · [First session](#first-session)
 
 > Generated from `inewi/brainiac-pipeline` by `npm run build:dev-plugin`. Do not edit by hand.
 
 ## Quick install
 
-**macOS / Linux:**
+**Get running in 2 minutes.**
+
+macOS / Linux:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.sh | sh
 ```
 
-**Windows (PowerShell):**
+Windows (PowerShell):
 
 ```powershell
 irm https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.ps1 | iex
@@ -25,7 +33,13 @@ irm https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.ps1 | iex
 Installs the prebuilt `brainiac` CLI for macOS (arm64/x64), Linux (x64/arm64), and Windows (x64)
 into `~/.local/bin` (`%USERPROFILE%\.local\bin` on Windows), then runs `brainiac setup --dev`
 to wire the `brainiac` plugin + superpowers on each detected host (Claude Code or Copilot
-CLI). No inewi access required.
+CLI). No inewi access required. **Re-run either command anytime to update**
+(`brainiac --version` to confirm). Then:
+
+```sh
+brainiac develop --list    # enumerate epic branches ready to work
+brainiac                   # open the TUI cockpit (needs a real terminal)
+```
 
 On macOS/Linux, pass `-s -- --no-setup` to install the CLI only, or `-s -- --bin-dir <path>` to
 change the install location. On Windows, download `install.ps1` and run it with `-NoSetup` /
@@ -46,6 +60,17 @@ copilot plugin install brainiac@inewi
 copilot plugin marketplace add obra/superpowers-marketplace
 copilot plugin install superpowers@superpowers-marketplace
 ```
+
+## What you get
+
+| Capability | What it does | Status |
+|---|---|---|
+| Dev pipeline (`/brainiac:develop`) | Git-native: enter an epic branch → next unblocked task → TDD → push-per-task → finalize the epic | GA |
+| Enforcement gates (`brainiac check` + hooks) | Path-deprecation + secret/PII gates in the pre-commit hook; opt-in spec + freshness gates | GA |
+| Interactive cockpit (`brainiac` / `dash`) | Mission-control TUI: pulses, XRAY contracts, roadmap, drift, one-key agent handoff | GA |
+| GitHub Copilot CLI surface | The same pipelines as agents + skills — Copilot ingests no slash commands, so brainiac ships them as agents | GA |
+| Reflection loop (`brainiac reflect`) | Friction capture → human-reviewed suggestions; never auto-applies | GA (advisory) |
+| Repo provisioning (`brainiac init`) | Detect-and-coexist convention rollout | Preview (Phase-0 dry-run) |
 
 ## How it works
 
@@ -77,7 +102,7 @@ delegates.
 | Artifact governance (ONE WAY) | Verification before merge |
 | Pre-commit enforcement gate | Branch management |
 
-## What's included
+## Reference
 
 ### Commands (Claude Code slash-commands)
 
@@ -148,7 +173,7 @@ brainiac --version      print version and exit
 - **macOS, Linux, or Windows** — macOS/Linux arm64 or x64; Windows x64 (also runs on
   Windows-on-ARM via x64 emulation) — the prebuilt binary platforms
 
-## Your first /brainiac:develop session
+## First session
 
 ```sh
 # 1. Ground the repo (inventory it so brainiac knows what's there)
@@ -162,13 +187,7 @@ brainiac specify "Add CSV Export" --repo . --brain-root .
 ```
 
 In Copilot CLI, invoke the `brainiac-develop` agent instead of the slash-command — same
-pipeline, different surface.
-
-## Superpowers
-
-brainiac **depends on** superpowers. On Claude Code it auto-installs (the
-`claude-plugins-official` marketplace is built-in). On Copilot CLI, `brainiac setup --dev`
-(or the manual commands above) installs it explicitly — same result either way.
+pipeline, different surface. brainiac is **dogfooded on its own dev pipeline**.
 
 ## How it's built
 
