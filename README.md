@@ -7,7 +7,7 @@ governance gates with **no private-repo access, no npm, no PAT**.
 - **Grounded dev loop** — enter an epic branch, get the next unblocked task, TDD it, push per task, finalize the epic.
 - **Gates that block drift** — path-deprecation + secret/PII gates run in the pre-commit hook; a red gate stops the commit, not the retro.
 - **TDD + verification every task** — delegated to superpowers, never skipped.
-- **Mission control included** — a TUI cockpit over the portfolio: pulses, XRAY contracts, roadmap, drift.
+- **Mission control included** — a TUI cockpit over the portfolio: pulses, CONTRACTS, TRENDS, drift.
 - **Zero access requirements** — a prebuilt binary plus the brainiac + superpowers plugins, nothing else.
 
 [Quick install](#quick-install) · [What you get](#what-you-get) · [How it works](#how-it-works) · [Reference](#reference) · [First session](#first-session)
@@ -67,7 +67,7 @@ copilot plugin install superpowers@superpowers-marketplace
 |---|---|---|
 | Dev pipeline (`/brainiac:develop`) | Git-native: enter an epic branch → next unblocked task → TDD → push-per-task → finalize the epic | GA |
 | Enforcement gates (`brainiac check` + hooks) | Path-deprecation + secret/PII gates in the pre-commit hook; opt-in spec + freshness gates | GA |
-| Interactive cockpit (`brainiac` / `dash`) | Mission-control TUI: pulses, XRAY contracts, roadmap, drift, one-key agent handoff | GA |
+| Interactive cockpit (`brainiac` / `dash`) | Mission-control TUI: pulses, CONTRACTS, TRENDS, drift, one-key agent handoff | GA |
 | GitHub Copilot CLI surface | The same pipelines as agents + skills — Copilot ingests no slash commands, so brainiac ships them as agents | GA |
 | Reflection loop (`brainiac reflect`) | Friction capture → human-reviewed suggestions; never auto-applies | GA (advisory) |
 | Repo provisioning (`brainiac init`) | Detect-and-coexist convention rollout | Preview (Phase-0 dry-run) |
