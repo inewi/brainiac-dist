@@ -53,6 +53,23 @@ cross-decision dependency, every unstated edge case. But invent no new scope, an
 the moment understanding is genuinely shared. "Relentless" is about depth on the chosen
 plan, not endless tangents.
 
+### The external-service branch is MANDATORY
+
+For every external vendor/service the flow touches (mail provider, payment gateway,
+identity provider, host API), walk two questions before the interview may end:
+
+1. **What state does the vendor keep SERVER-SIDE that this design does not touch?**
+   A fix that only lifts the internal block ships a no-op when the vendor
+   independently suppresses on its own side (a provider's own hard-bounce list, its
+   verify cache, its idempotency store).
+2. **Where does the vendor's PROD behavior diverge from sandbox/test?** (prod-only
+   short-circuits, different rate limits, verification skips).
+
+Answer each from the spec's cited research/docs; when the spec is silent, that is an
+unresolved branch — stamp `[NEEDS-CLARIFICATION]`, never assume the vendor is
+stateless. This class of miss has invalidated a shipped design more than once in one
+epic.
+
 ### Checkpoint every 10 questions
 
 Relentless does not mean unbounded. After every **10 questions**, if branches still

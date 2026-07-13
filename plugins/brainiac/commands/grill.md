@@ -51,7 +51,9 @@ Skill({skill: "brainiac:grill"})
 The skill interviews the operator one question at a time, walking every branch of the
 chosen design's decision tree, recommending an answer for each, and self-answering from
 `.brainiac/steering/` + the authored spec where it can. It reads only the grounded
-inventory and the spec — never raw source, never denylisted paths.
+inventory and the spec — never raw source, never denylisted paths. The external-service
+branch is mandatory: for every vendor in the flow, what state does it keep server-side
+that the design doesn't touch, and where does its prod behavior diverge from sandbox?
 
 ## 3. Record the results — markers and decisions only
 

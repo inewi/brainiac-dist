@@ -42,8 +42,10 @@ After a green handoff, execute the bootstrap THE ONE WAY in the target repo:
 1. Open plan mode and load the spec trio (requirements/design/tasks).
 2. Use `superpowers:subagent-driven-development` — dispatch ONE fresh subagent
    per `tasks.md` task, in the foundations-first order `brainiac plan` derived.
-3. TDD ALWAYS: each subagent writes the failing test FIRST, then the minimal
-   code to green it, then commits. Never ship code ahead of a test.
+3. TDD ALWAYS: each subagent writes the failing test FIRST (in statically-typed
+   repos, a compile error naming the missing symbol IS the failing test for
+   schema-shaped tasks), then the minimal code to green it, then commits. Never
+   ship code ahead of a test.
 4. The pre-commit `brainiac check` gate is mandatory — keep it green every commit.
 5. Re-run `brainiac reconcile` to confirm the published `status.json` matches the
    `tasks.md` checkboxes as tasks complete; re-handoff to re-publish progress.

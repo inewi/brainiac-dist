@@ -84,12 +84,16 @@ checks out `epic/EPIC-####-slug`, and claims the marker:
 brainiac develop enter --epic EPIC-####
 ```
 
-**Dirty-tree policy:** if `git status --porcelain` is non-empty, `enter` refuses and prints the
+**Dirty-tree policy:** `enter` refuses on modified/staged **tracked** files and prints the
 offending paths — it **never auto-stashes**. Stash explicitly and re-run:
 
 ```bash
 git stash push -m brainiac-enter-EPIC-####
 ```
+
+Untracked files do **not** block entry: checkout never touches them, and git itself errors if
+an untracked path would be overwritten by the target branch. `enter` prints an advisory with
+the untracked count — keep task commits path-scoped so scratch files are never swept in.
 
 ---
 
@@ -125,12 +129,18 @@ Report what you're building, why, and where it fits before writing a line.
 
 ## P6 — Next unblocked task
 
-Read readiness from the same `develop --list --json` envelope — now that you are on-branch, each
-epic listing carries a `readiness` report ordered by phase then file order:
+Read readiness from the same `develop --list --json` envelope — each epic listing carries a
+`readiness` report ordered by phase then file order (readiness is classified from the epic's
+own branch ref even before checkout, so the pre-checkout menu already shows real next-task
+data; `develop enter` remains the only claim gate):
 
 ```bash
 brainiac develop --list --json
 ```
+
+If `readiness.malformedCheckboxes` is non-zero, the tasks.md has checkbox lines that don't
+parse as tasks — fix them to the `- [ ] T-###: <task> (depends_on: ...)` grammar before
+picking (a task the parser can't see can never be selected, verified, or finalized).
 
 Pick the first `AVAILABLE` task (a task with all local deps done). Auto-select when exactly one
 is available. Zero-available is a defined outcome:
@@ -190,11 +200,26 @@ Then run the inner loop:
    that covers the acceptance criteria from the EARS requirement, and run it to confirm it
    fails. The failing test is the readiness proof — if the criteria can't be a red test, loop
    back to P7. The test lives next to the implementation; if the task depends on another repo's
-   contract, mock it from that repo's `tasks.md` `[repo:name]` annotation. **CHECKPOINT** — test
-   fails.
+   contract, mock it from that repo's `tasks.md` `[repo:name]` annotation. Run tests with the
+   recommended command from `.brainiac/steering/tech.md` (`## Test command`) when present — it
+   is tuned for parseable output (quiet flags on verbose stacks). In statically-typed repos
+   (C#, Java, Kotlin, Swift) a test referencing a not-yet-existing symbol fails to *compile* —
+   that compile error IS a valid RED for schema-shaped tasks (new property/constant/enum/
+   signature), provided the error names the missing symbol from the acceptance criteria; never
+   "fix the build" by creating the symbol first. When the unit under test has a wide
+   constructor (≳5 dependencies), first read the constructor declaration, enumerate every
+   dependency, and mirror a sibling test's mock framework, naming, and SUT-factory style
+   (mocks + a `CreateSut()`-style helper) before writing the first failing test — copy the
+   repo's real conventions, never invent a skeleton. **CHECKPOINT** — test fails.
 2. **Implement** — write the minimal implementation to pass the test, following brainiac
    conventions: `_` prefix for unused-but-arity-required parameters, kebab-case files, all
-   public functions exported for the grounding inventory. Run the test; loop back if it fails.
+   public functions exported for the grounding inventory. Match the SURROUNDING repo's
+   conventions before adding schema elements (mirror the neighboring column/property/file
+   naming — never introduce a new style next to an established one). Never hand-edit generated
+   files (EF `*.Designer.cs`/`*ModelSnapshot.cs`, lockfiles, `generated/**`) — regenerate them
+   with their own tool (e.g. `dotnet ef migrations remove` + re-add). Prefer transient changes
+   over permanent project-file mutations — a csproj/manifest edit outlives the task, so reach
+   for it last. Run the test; loop back if it fails.
    **CHECKPOINT** — test passes.
 3. **Debug if needed** — `Skill({skill: "superpowers:systematic-debugging"})`. brainiac context:
    check `.references/` for upstream contracts; `brainiac reconcile` for spec drift; `brainiac
@@ -225,6 +250,11 @@ Then run the inner loop:
    brainiac handoff --spec "specs/EPIC-####-slug" --repo "<repo>" --repo-name "<repo-name>" \
      --task-id <TASK_ID> --epic EPIC-#### --push
    ```
+
+   Handoff warns when the working tree still has uncommitted paths — that usually means step 6's
+   path-scoped commit missed files (e.g. a signature change rippling into callers/test helpers).
+   Fold stragglers in with `git commit --amend` (pre-push) or a follow-up commit before moving
+   on; under `--strict`, tracked modifications hard-fail the handoff.
 
    The push is **write-access-aware** and **degrades, never throws**: on offline / protected /
    no-write / non-fast-forward, the local commit stands, handoff prints *"committed locally on
@@ -279,3 +309,7 @@ to continue on another task or epic.
 5. **Never `--force`-push and never blanket-stage (no `-A` add).** Pushes degrade gracefully;
    commits stay path-scoped.
 6. **One task per session.** Focus. Finish. Hand off. Then start the next.
+7. **Never delete `.brainiac/`.** It is brainiac's runtime state (live task markers,
+   telemetry, steering) — irrecoverable, not build junk. There is exactly ONE `.brainiac/`
+   per repo, at the repo root; if you find a second one nested deeper, report it instead of
+   tidying it away.

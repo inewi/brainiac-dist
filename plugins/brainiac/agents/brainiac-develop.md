@@ -69,8 +69,10 @@ claim the task marker:
 npx --no-install brainiac develop enter --epic EPIC-####
 ```
 
-`enter` refuses on a dirty tree — it prints the offending paths and offers an explicit labeled
-`git stash push -m brainiac-enter-<epic>`; it **never** auto-stashes. It never uses `--force`.
+`enter` refuses on modified/staged TRACKED files — it prints the offending paths and offers an
+explicit labeled `git stash push -m brainiac-enter-<epic>`; it **never** auto-stashes and never
+uses `--force`. Untracked files don't block (checkout never touches them; git errors on a real
+collision) — an advisory reports their count so task commits stay path-scoped.
 
 ## P4 — Grounding verify
 
@@ -149,10 +151,15 @@ Then run the inner loop:
 
 1. **TDD** — `Skill({skill: "superpowers:test-driven-development"})`. Write the failing test
    first over the EARS acceptance criteria; the failing test is the readiness proof — if the
-   criteria can't be a red test, loop back to P7. Confirm it fails before implementing.
-   **CHECKPOINT** — test fails.
+   criteria can't be a red test, loop back to P7. Confirm it fails before implementing. Run
+   tests with the `## Test command` from `.brainiac/steering/tech.md` when present (quiet,
+   parseable output). In statically-typed repos a compile error naming the missing symbol IS
+   the failing test for schema-shaped tasks — never pre-create the symbol to make the test
+   build. **CHECKPOINT** — test fails.
 2. **Implement** — minimal code to pass: `_` prefix for unused params, kebab-case files, all
-   public functions exported. **CHECKPOINT** — test passes.
+   public functions exported. Mirror the neighboring naming conventions; never hand-edit
+   generated files (regenerate with their own tool); prefer transient over permanent
+   project-file changes. **CHECKPOINT** — test passes.
 3. **Debug** if needed — `Skill({skill: "superpowers:systematic-debugging"})`; check
    `.references/` for upstream contracts, `npx --no-install brainiac reconcile` for spec drift,
    `npx --no-install brainiac check --freshness` for stale steering,

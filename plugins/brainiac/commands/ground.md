@@ -48,7 +48,7 @@ Run this from the root of the target repo (the web or billing clone), not from t
 
    On a RE-run where a prior `tech.md` was generated from a different HEAD, brainiac additionally prints one §15 staleness advisory (also non-blocking): on apply, `advisory: prior steering was stale (generated from a different HEAD) — regenerated with :ground`; on `--dry-run`, `advisory: prior steering is stale (generated from a different HEAD) — re-run without --dry-run to refresh`. A non-git/unborn-branch repo (no resolvable HEAD) does not emit it.
 
-2. Confirm `.brainiac/` was written and that `.gitignore` now ignores `.brainiac/*` (the directory contents) while un-ignoring `.brainiac/status.json` (so the manifest is the one tracked artifact). Ignoring the contents with `.brainiac/*` — rather than the directory itself with `.brainiac/` — is what lets the `!.brainiac/status.json` negation take effect; git cannot re-include a file beneath a directory that is itself excluded.
+2. Confirm `.brainiac/` was written and that `.gitignore` now ignores `.brainiac/*` (the directory contents) while un-ignoring `.brainiac/status.json` and `.brainiac/config.json` (the generated manifest and the hand-authored gate policy are the two tracked artifacts). Ignoring the contents with `.brainiac/*` — rather than the directory itself with `.brainiac/` — is what lets the `!` negations take effect; git cannot re-include a file beneath a directory that is itself excluded.
 
 ## Batch — ground every reference repo at once
 

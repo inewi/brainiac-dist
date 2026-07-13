@@ -50,7 +50,9 @@ minimal — just enough to satisfy the gates. Fill in:
 
 ## 3. TDD ALWAYS
 
-Write the failing test first. Run it and confirm it fails. Then write the
+Write the failing test first. Run it and confirm it fails (in statically-typed
+repos, a compile error naming the missing symbol IS the failing test for
+schema-shaped tasks — a new property/constant/enum/signature). Then write the
 minimal code. Run the test and confirm it passes. The `## Verification`
 section in `requirements.md` must reference the exact test command.
 

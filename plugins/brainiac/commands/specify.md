@@ -75,6 +75,13 @@ Write `## Context`, then `## Requirements` as EARS-style bullets. When a
 requirement is computational, express it as the I/O contract table. Write
 `## Out of scope`. ALWAYS write a runnable `## Verification` check.
 
+For every external service in the flow (mail provider, payment gateway, identity
+provider), record what state it keeps SERVER-SIDE and how its prod behavior
+diverges from sandbox — a vendor's own suppression list or a prod-only verify
+short-circuit has invalidated designs that only changed internal state. Verify
+each claim against the linked research or the vendor's docs, or stamp
+`[NEEDS-CLARIFICATION]`.
+
 ### 3b. Evaluate UI impact
 
 Scan requirements + grounded inventory for UI surfaces using three criteria:
