@@ -32,12 +32,12 @@ These intents map directly to a real `brainiac` CLI verb. Run each as
 | analyze | `analyze --spec <dir> [--repo <path>]` |
 | check | `check [--spec <dir>] [--staged-spec] [--freshness]` |
 | discover | `discover --feature "<text>" [--repos <csv>] [--auto-repos]` |
-| epic | `epic --title <text> --initiative INIT-#### --repos <csv>` |
+| epic | `epic --title <text> --initiative INIT-#### [--repos <csv>]` |
 | ground | `ground [--root <path>] --repo-name <name>` |
 | handoff | `handoff --spec <dir> --repo <path> [--task-id T-###] [--commit [--push [--draft-pr --base <branch>]]]` |
 | id (mint) | `id mint <EPIC\|INIT>` |
 | init | `init --dry-run` |
-| initiative | `initiative --title <text> --quarter YYYY-Qn --outcome <text> --objective <OKR-id> --repos <csv> --lead <name>` |
+| initiative | `initiative --title <text> --quarter YYYY-Qn --outcome <text> --objective <OKR-id> [--repos <csv>] --lead <name>` |
 | migrate | `migrate --repos <csv>` |
 | mockup | `mockup --epic <EPIC-####> [--repo <path>]` |
 | plan | `plan --spec <dir>` |
