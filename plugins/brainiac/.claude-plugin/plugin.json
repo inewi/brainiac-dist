@@ -1,6 +1,6 @@
 {
   "name": "brainiac",
-  "version": "0.42.1",
+  "version": "0.42.2",
   "description": "brainiac dev pipeline (develop/debug/quick) + the shared governance gates and conventions — the public, org-agnostic surface. No internal architecture knowledge.",
   "author": {
     "name": "inewi",
