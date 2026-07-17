@@ -27,9 +27,13 @@ reads the published `.brainiac/status.json`, and diffs the two — ignoring the
 
 ## 2. Act on the output
 
-When in sync it prints `reconcile: in sync (done/total tasks done)` and exits 0.
+When in sync it prints `reconcile: <repo>: in sync (done/total tasks done)` and exits 0.
 
-When drift exists it lists each `reconcile: [<kind>] <detail>` and exits 1.
+When drift exists it lists each `reconcile: <repo>: [<kind>] <detail>` and exits 1.
+Every line names the checkout it diffed. Run at a brain root (a tree carrying
+`references.json` or `.references/`), reconcile fans out over every grounded
+checkout under `.references/` instead of diffing the brain repo itself, and
+never-grounded checkouts are skipped with a `never grounded — skipped` line.
 reconcile writes NOTHING; to clear the drift, re-publish via
 `/brainiac:handoff` (which writes the fresh `status.json`) — never hand-edit the
 manifest. Drift kinds:
