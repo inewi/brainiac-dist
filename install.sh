@@ -1,6 +1,7 @@
 #!/bin/sh
-# install.sh — install the brainiac CLI with NO inewi access. Downloads the prebuilt, signed binary
-# for your platform from the PUBLIC inewi/brainiac-dist releases, then (when a Claude/Copilot CLI is
+# install.sh — install the brainiac CLI with NO inewi access. Downloads the prebuilt binary
+# for your platform over HTTPS from the PUBLIC inewi/brainiac-dist releases (no signature or
+# checksum verification yet — do not claim otherwise), then (when a Claude/Copilot CLI is
 # present) wires the public dev plugin + superpowers via `brainiac setup --dev`.
 #
 #   curl -fsSL https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.sh | sh
