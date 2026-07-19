@@ -1,8 +1,9 @@
 #!/bin/sh
 # install.sh — install the brainiac CLI with NO inewi access. Downloads the prebuilt binary
-# for your platform over HTTPS from the PUBLIC inewi/brainiac-dist releases (no signature or
-# checksum verification yet — do not claim otherwise), then (when a Claude/Copilot CLI is
-# present) wires the public dev plugin + superpowers via `brainiac setup --dev`.
+# for your platform over HTTPS from the PUBLIC inewi/brainiac-dist releases and verifies it
+# against the release's SHA256SUMS manifest (checksum integrity only — downloads are NOT
+# signature-verified; do not claim otherwise), then (when a Claude/Copilot CLI is present)
+# wires the public dev plugin + superpowers via `brainiac setup --dev`.
 #
 #   curl -fsSL https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.sh | sh
 #
@@ -49,6 +50,55 @@ fi
 base="https://github.com/${REPO}/releases/latest/download"
 mkdir -p "$BIN_DIR"
 
+# Fetch the release's SHA256SUMS manifest once. Verification is skipped (loudly) ONLY when the
+# release predates checksums — any downloaded manifest is enforced, and a missing/mismatched
+# entry fails the install rather than shipping an unverifiable binary.
+sums=$(mktemp "${TMPDIR:-/tmp}/brainiac-sums.XXXXXX")
+trap 'rm -f "$sums"' EXIT
+# No -f: we need the status code, not curl's error exit. -w prints the FINAL code after
+# redirects (000 on a network-level failure). Only a true 404 (release predates checksums)
+# may skip verification; any other failure aborts — fail closed, never silently unverified.
+sums_code=$(curl -sSL --proto '=https' --tlsv1.2 -o "$sums" -w '%{http_code}' \
+  "${base}/SHA256SUMS" 2>/dev/null) || sums_code=000
+if [ "$sums_code" = "200" ]; then
+  HAVE_SUMS=1
+elif [ "$sums_code" = "404" ]; then
+  HAVE_SUMS=0
+  echo "brainiac: WARNING — this release ships no SHA256SUMS manifest; skipping checksum verification" >&2
+else
+  echo "brainiac: could not fetch the SHA256SUMS manifest (HTTP ${sums_code}) — refusing to install unverified binaries; re-run in a moment" >&2
+  exit 1
+fi
+
+# sha256 <file> — portable digest: sha256sum (Linux) or shasum -a 256 (macOS).
+sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}'
+  else echo ""
+  fi
+}
+
+# verify <asset> <file> — compare the download against its SHA256SUMS entry. Fails closed on a
+# missing entry or a mismatch; only an entirely absent manifest (HAVE_SUMS=0) skips.
+verify() {
+  [ "$HAVE_SUMS" -eq 1 ] || return 0
+  expected=$(awk -v a="$1" '$2 == a { print $1 }' "$sums")
+  if [ -z "$expected" ]; then
+    echo "brainiac: SHA256SUMS has no entry for $1 — refusing to install an unverifiable binary" >&2
+    return 1
+  fi
+  actual=$(sha256 "$2")
+  if [ -z "$actual" ]; then
+    echo "brainiac: no sha256sum/shasum tool found — cannot verify $1" >&2
+    return 1
+  fi
+  if [ "$actual" != "$expected" ]; then
+    echo "brainiac: checksum MISMATCH for $1 (expected ${expected}, got ${actual}) — corrupt or tampered download" >&2
+    return 1
+  fi
+  echo "brainiac: verified $1 (sha256 OK)"
+}
+
 # Download <asset> to <dest> over HTTPS. Writes to a temp file + atomically renames on
 # success so an interrupted download or a concurrent run never leaves a partial binary.
 fetch() {
@@ -58,6 +108,10 @@ fetch() {
   echo "brainiac: downloading ${asset}"
   if ! curl -fSL --proto '=https' --tlsv1.2 -o "$tmp" "${base}/${asset}"; then
     echo "brainiac: download failed (${base}/${asset}) — no release asset for ${suffix}?" >&2
+    rm -f "$tmp"
+    exit 1
+  fi
+  if ! verify "$asset" "$tmp"; then
     rm -f "$tmp"
     exit 1
   fi

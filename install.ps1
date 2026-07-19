@@ -39,6 +39,48 @@ $base = "https://github.com/$Repo/releases/latest/download"
 
 New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 
+# Fetch the release's SHA256SUMS manifest once. Verification is skipped (loudly) ONLY when the
+# release predates checksums — any downloaded manifest is enforced, and a missing/mismatched
+# entry fails the install rather than shipping an unverifiable binary.
+$script:SumsFile = Join-Path ([IO.Path]::GetTempPath()) "brainiac-sums-$PID.txt"
+$script:HaveSums = $true
+try {
+  Invoke-WebRequest -UseBasicParsing -Uri "$base/SHA256SUMS" -OutFile $script:SumsFile
+} catch {
+  Remove-Item -Force -ErrorAction SilentlyContinue $script:SumsFile
+  # Only a true 404 (release predates checksums) may skip verification; any other failure
+  # (5xx, network-level) aborts — fail closed. Response is absent on network-level errors,
+  # and StrictMode throws on missing properties, so probe via PSObject.Properties.
+  $status = 0
+  $respProp = $_.Exception.PSObject.Properties['Response']
+  if ($respProp -and $respProp.Value) { $status = [int]$respProp.Value.StatusCode }
+  if ($status -eq 404) {
+    $script:HaveSums = $false
+    Write-Warning 'brainiac: this release ships no SHA256SUMS manifest; skipping checksum verification'
+  } else {
+    throw "brainiac: could not fetch the SHA256SUMS manifest (HTTP $status) — refusing to install unverified binaries; re-run in a moment"
+  }
+}
+
+# Compare a download against its SHA256SUMS entry (sha256sum format: `<hash>  <name>`). Fails
+# closed on a missing entry or a mismatch; only an entirely absent manifest skips.
+function Test-BrainiacChecksum {
+  param([string]$Asset, [string]$File)
+  if (-not $script:HaveSums) { return }
+  $entry = Get-Content $script:SumsFile |
+    Where-Object { $parts = $_ -split '\s+', 2; ($parts.Count -ge 2) -and ($parts[1] -eq $Asset) } |
+    Select-Object -First 1
+  if (-not $entry) {
+    throw "brainiac: SHA256SUMS has no entry for $Asset — refusing to install an unverifiable binary"
+  }
+  $expected = ($entry -split '\s+')[0].ToLowerInvariant()
+  $actual = (Get-FileHash -Algorithm SHA256 -Path $File).Hash.ToLowerInvariant()
+  if ($actual -ne $expected) {
+    throw "brainiac: checksum MISMATCH for $Asset (expected $expected, got $actual) — corrupt or tampered download"
+  }
+  Write-Host "brainiac: verified $Asset (sha256 OK)"
+}
+
 # Download <asset> to <dest> over HTTPS, writing to a temp file + atomically renaming on success so
 # an interrupted download or a concurrent run never leaves a partial binary.
 function Get-BrainiacAsset {
@@ -53,11 +95,18 @@ function Get-BrainiacAsset {
     # the user's interactive session (iex runs in-process); on a `-File` run it still exits non-zero.
     throw "brainiac: download failed ($base/$Asset) — release asset missing?"
   }
+  try {
+    Test-BrainiacChecksum -Asset $Asset -File $tmp
+  } catch {
+    Remove-Item -Force -ErrorAction SilentlyContinue $tmp
+    throw
+  }
   Move-Item -Force -Path $tmp -Destination $Dest
 }
 
 Get-BrainiacAsset 'brainiac-windows-x64.exe' (Join-Path $BinDir 'brainiac.exe')
 Get-BrainiacAsset 'brainiac-check-windows-x64.exe' (Join-Path $BinDir 'brainiac-check.exe')
+Remove-Item -Force -ErrorAction SilentlyContinue $script:SumsFile
 
 Write-Host "brainiac: installed brainiac + brainiac-check to $BinDir"
 
