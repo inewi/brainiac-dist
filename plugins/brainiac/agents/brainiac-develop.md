@@ -59,6 +59,15 @@ From the `--list` JSON, present one row per epic: `EPIC-####  <title>  <summary>
 Auto-select when exactly one epic is present; otherwise ask which to work on. `title` +
 `summary` come from each branch's `specs/EPIC-####-slug/requirements.md` front-matter.
 
+Alongside each row, read that epic's `.brainiac/status.json` (`dev_review` and `agentic`
+fields — absent means unknown, never inferred) and render a soft-gate badge: `reviewed ✓ /
+agentic ✓` when both are stamped, `reviewed ✓` when only `dev_review` is set, `reviewed ✗`
+when `dev_review` is explicitly `none`, or `review: unknown` when the field is absent
+(an older manifest predating the stamps) or when the manifest itself is
+unreadable. These badges are advisory for the human picking an epic — the broker's hard
+`agentic: approved` dispatch gate (governor reason `epic-not-approved`) is unaffected by what
+this menu shows.
+
 ## P3 — Pick, checkout, claim
 
 Enter the chosen epic — resolve scope (dev in-place vs a PM workspace clone, read from the
@@ -68,6 +77,13 @@ claim the task marker:
 ```text
 npx --no-install brainiac develop enter --epic EPIC-####
 ```
+
+Before claiming, if the picked epic's `dev_review` field is missing or `none`, stop and
+confirm: "This epic has no dev-review stamp — proceed anyway? (the epic-level implementer
+review is the pipeline's analysis phase; consider running `npx --no-install brainiac
+dev-review --epic EPIC-####` from the brain first)" — `[y]` proceed · `[n]` pick another. This
+is an advisory confirmation for humans; the broker's hard agentic-approval gate is unaffected
+either way.
 
 `enter` refuses on modified/staged TRACKED files — it prints the offending paths and offers an
 explicit labeled `git stash push -m brainiac-enter-<epic>`; it **never** auto-stashes and never

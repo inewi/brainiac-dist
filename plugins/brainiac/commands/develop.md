@@ -72,6 +72,15 @@ deterministic resolution only happens in a multi-repo/cockpit view.
 From the P1 JSON, present one row per epic. Auto-select when there is exactly one epic;
 otherwise present the menu and let the developer choose which to work on.
 
+Alongside each row, read that epic's `.brainiac/status.json` (`dev_review` and `agentic`
+fields — absent means unknown, never inferred) and render a soft-gate badge: `reviewed ✓ /
+agentic ✓` when both are stamped, `reviewed ✓` when only `dev_review` is set, `reviewed ✗`
+when `dev_review` is explicitly `none`, or `review: unknown` when the field is absent
+(an older manifest predating the stamps) or when the manifest itself is
+unreadable. These badges are advisory for the human picking an epic — the broker's hard
+`agentic: approved` dispatch gate (governor reason `epic-not-approved`) is unaffected by what
+this menu shows.
+
 ---
 
 ## P3 — Pick, checkout, claim
@@ -83,6 +92,12 @@ checks out `epic/EPIC-####-slug`, and claims the marker:
 ```bash
 brainiac develop enter --epic EPIC-####
 ```
+
+Before claiming, if the picked epic's `dev_review` field is missing or `none`, stop and
+confirm: "This epic has no dev-review stamp — proceed anyway? (the epic-level implementer
+review is the pipeline's analysis phase; consider running `/brainiac:dev-review` from the
+brain first)" — `[y]` proceed · `[n]` pick another. This is an advisory confirmation for
+humans; the broker's hard agentic-approval gate is unaffected either way.
 
 **Dirty-tree policy:** `enter` refuses on modified/staged **tracked** files and prints the
 offending paths — it **never auto-stashes**. Stash explicitly and re-run:
