@@ -81,6 +81,13 @@ unreadable. These badges are advisory for the human picking an epic — the brok
 `agentic: approved` dispatch gate (governor reason `epic-not-approved`) is unaffected by what
 this menu shows.
 
+On the **repo-upward** path (a dev ran `dev-review` from the target repo instead of the
+brain), the same `agentic` field is what moves: it stays unset until `brainiac dev-review
+reconcile` mirrors that repo's readiness record up into the brain — at which point this menu's
+badge flips to `agentic ✓` too. The human soft-gate above is unchanged either way; the
+broker's hard gate reads that identical brain-mirrored `agentic` field, never the repo's own
+readiness record directly.
+
 ---
 
 ## P3 — Pick, checkout, claim
