@@ -12,7 +12,10 @@ dry-run-able — it halts and reports rather than half-applying.
 
 **Argument:** the spec directory, e.g. `specs/EPIC-0007-add-export`. Optional:
 `--repo <path>` (target repo), `--repo-name <name>` + `--task-id T-###` (record
-real task duration in the throughput ledger), `--dry-run` (grade + report, write
+real task duration in the throughput ledger), `--context "<paragraph>"` (ship's
+PM-authored one-paragraph bridge — the load-bearing design context stamped into
+`status.json`'s `context` field so a cold dev agent, esp. the autonomous broker,
+starts oriented before re-deriving the spec), `--dry-run` (grade + report, write
 nothing).
 
 ## 1. Gate and publish
