@@ -6,7 +6,13 @@ user-invocable: false
 
 # brainiac Cross-Repo Governance Workflow
 
-The full brainiac workflow for cross-repo feature delivery. Each phase has a CLI verb and a corresponding `/brainiac:<verb>` command.
+The core governance-verb workflow for cross-repo feature delivery. Each phase has a CLI verb and a corresponding `/brainiac:<verb>` command.
+
+**This is the verb-level governance loop, not the full `/brainiac:ship` pipeline.** `/brainiac:ship`
+runs these same verbs but wraps them with the PM front-half — brainstorm → mint → discover →
+materialize — and interleaves grill / rollup / retro, all in one command. Reach for these verbs
+directly when you drive the governance steps by hand (between ships, or a single-repo pass); reach
+for `/brainiac:ship` to run the whole PM pipeline end to end.
 
 > **Host note (Copilot CLI):** the `/brainiac:*` slash-commands are a Claude Code surface and do
 > not exist in GitHub Copilot CLI. On Copilot, invoke the `brainiac-ship`, `brainiac-develop`, and

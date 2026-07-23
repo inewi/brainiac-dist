@@ -113,6 +113,7 @@ delegates.
 | `/brainiac:clarify` | Resolve `[NEEDS-CLARIFICATION]` markers in a spec |
 | `/brainiac:contract` | Show the API/schema/interface a task promises to expose |
 | `/brainiac:debug` | Systematic debugging with brainiac-aware context |
+| `/brainiac:dev-review` | Epic-level implementer review — "could I build this as written?"; run it repo-upward from your target repo on the epic branch |
 | `/brainiac:grill` | Relentlessly stress-test an authored design before build (task, epic, or spec) |
 | `/brainiac:grill-me` | Free-form, anytime grill — stress-test any idea mid-conversation, writes nothing |
 | `/brainiac:ground` | Inventory the repo + provision PII-free steering docs |
