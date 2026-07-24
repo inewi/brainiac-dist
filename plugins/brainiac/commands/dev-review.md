@@ -117,6 +117,14 @@ dev/broker reads, not just the markers for the branches that stayed open. Do not
 transcribe the interview; capture only what a cold builder cannot recover from the code
 or the checkboxes alone.
 
+**Never hand-author or hand-edit `dev-review.md`.** That file is a machine-generated
+readiness record owned by the `brainiac dev-review` verb (Phase 3) — it carries a
+`kind: dev-review-readiness` frontmatter marker, a digest of the reviewed spec, and an
+ISO timestamp. The broker's reconcile parses exactly that shape to authorize dispatch;
+a hand-written `dev-review.md` is silently rejected (`no readiness record`), so the epic
+stays gated and the daemon never picks it up. Grill findings go in `design.md`
+`## Dev Review notes` — never in `dev-review.md`.
+
 ---
 
 ## Phase 3: Gate + Stamp (all-or-nothing across repos)
@@ -138,6 +146,33 @@ On `BLOCKED`, the command prints the still-failing repos and their findings. Act
 them — resolve markers, fix the analyze violations, or reconcile a spec-unreachable
 repo from Phase 1 — then re-run `brainiac dev-review --epic EPIC-####` until it
 stamps.
+
+### Verify the stamp/record landed (mandatory — not complete until this passes)
+
+A green grill in your head is not a reviewed epic — the artifact the verb owns must
+actually exist on disk, or the epic stays gated. Confirm it before declaring done:
+
+- **Repo-upward** — the readiness record the broker reconciles:
+
+  ```bash
+  head -2 specs/EPIC-####-slug/dev-review.md
+  ```
+
+  The second line must read `kind: dev-review-readiness`. If instead you see prose you
+  wrote (`verdict:`, `context:`, a findings table), you skipped the verb — run
+  `brainiac dev-review --epic EPIC-####` now so it overwrites the file with the real
+  record. Then **commit and push** that record to the epic branch: an uncommitted record
+  in the worktree is not durable — the daemon's next checkout refresh can discard it,
+  and reconcile only trusts what has landed on the remote branch.
+
+- **Brain-first** — the epic-level stamp:
+
+  ```bash
+  rg '^dev_review:' epics/EPIC-####-slug/epic.md
+  ```
+
+  It must show a date, not `none`. A stamp that never landed reads `none` and authorizes
+  nothing.
 
 ---
 
