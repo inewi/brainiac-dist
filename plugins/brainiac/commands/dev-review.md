@@ -106,6 +106,17 @@ resolver as everywhere else in brainiac. Immediately offer to resolve them:
 On `clarify`, run `/brainiac:clarify <spec-dir>` per affected repo; on `later`,
 continue — Phase 3's gate will surface them again.
 
+For each challenge the grill **resolved**, record it under `## Dev Review notes` in
+`design.md` — a symbol verified real (or confirmed not-yet-existing where the spec says
+NEW), a schema/migration that fits the repo's actual conventions, a `[repo:name]`
+contract confirmed consumable in the shape published, a hidden prerequisite surfaced and
+ordered, a cross-repo contract ordering confirmed. One bullet per load-bearing finding:
+what was checked, the verdict, and anything to **watch** while building it. This is the
+enrichment the dev-review grill exists to produce — the findings land in the spec the
+dev/broker reads, not just the markers for the branches that stayed open. Do not
+transcribe the interview; capture only what a cold builder cannot recover from the code
+or the checkboxes alone.
+
 ---
 
 ## Phase 3: Gate + Stamp (all-or-nothing across repos)

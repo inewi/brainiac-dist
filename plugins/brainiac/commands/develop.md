@@ -138,11 +138,12 @@ verifies grounding on **every** entry path (including P0 resume) before any step
 ## P5 — Context bundle
 
 Context before code. Read the branch's `specs/EPIC-####-slug/requirements.md` and `design.md`
-(the "why"), plus any `## Open Decisions` / `[NEEDS-CLARIFICATION]` history. If the repo's
-`.brainiac/status.json` carries a `context` field, read it first — it is the PM-authored
-one-paragraph bridge from ship's handoff, the load-bearing orientation a cold start needs
-before re-deriving the spec. Then re-gate traceability and probe the code region the task
-touches:
+(the "why"), plus any `## Open Decisions` / `## Dev Review notes` / `[NEEDS-CLARIFICATION]`
+history — the `## Dev Review notes` carry what the implementer review verified and flagged
+to watch. If the repo's `.brainiac/status.json` carries a `context` field, read it first — it
+is the PM-authored one-paragraph bridge from ship's handoff, the load-bearing orientation a
+cold start needs before re-deriving the spec. Then re-gate traceability and probe the code
+region the task touches:
 
 ```bash
 brainiac analyze --spec "specs/EPIC-####-slug"
