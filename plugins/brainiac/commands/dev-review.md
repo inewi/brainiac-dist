@@ -184,10 +184,12 @@ Once the stamp lands, print the seam into authorization, exactly:
 next: brainiac approve --epic EPIC-#### (interactive)
 ```
 
-`dev-review` never grants agentic authorization itself — `brainiac approve` is a
-**separate, interactive, never-autonomous** step that an operator runs deliberately.
-`dev-review` only proves the design is implementable as written; `approve` is the
-human say-so that lets the broker act on it.
+Run from the brain root, `dev-review` grants no agentic authorization itself — `brainiac
+approve` is a **separate, interactive, never-autonomous** step that an operator runs
+deliberately. `dev-review` only proves the design is implementable as written; `approve` is
+the human say-so that lets the broker act on it. (On the repo-upward path below, the
+brain-cred `dev-review reconcile` mirrors a reviewed repo into `agentic_repos` on its own —
+see that section.)
 
 ---
 
@@ -221,13 +223,17 @@ brainiac dev-review reconcile --epic EPIC-####   # or: --all, to sweep every epi
 
 `reconcile` re-verifies each affected repo's readiness record (reviewer identity present + the
 digest still matching the spec on disk — a spec edited after review fails the check and blocks
-the mirror, no manual demote needed) and, **all-or-nothing across every repo the epic touches**,
-writes `dev_review: <date>` **and** `agentic: approved` to the brain's `epic.md` in the same
-act — there is no separate `brainiac approve` call on this path; the review that proves the
-epic implementer-ready is the same act that authorizes the broker. The **post-merge hook**
-installed on the brain's git checkout runs `brainiac dev-review reconcile --all` automatically,
-so bringing a reviewed epic branch into the brain (a merge) mirrors it without an operator
-remembering to run reconcile by hand.
+that repo's mirror, no manual demote needed) and mirrors **each trusted repo INDEPENDENTLY**
+into `agentic_repos` on the brain's `epic.md`, alongside `dev_review: <date>`. There is no
+all-or-nothing barrier: a repo with no record, a stale record, or a demoted record never blocks
+a sibling's mirror, and the broker's dispatch gate authorizes on `agentic_repos` membership, so
+a mirrored repo becomes dispatchable immediately. The epic-wide `agentic: approved` stamp is
+**derived** only once `agentic_repos` covers every repo the epic lists. There is no separate
+`brainiac approve` call on this path; the review that proves a repo implementer-ready is the
+same act that authorizes the broker for it. The **post-merge hook** installed on the brain's git
+checkout runs `brainiac dev-review reconcile --all` automatically, so bringing a reviewed epic
+branch into the brain (a merge) mirrors it without an operator remembering to run reconcile by
+hand.
 
 **Brain-first + `approve` stays the alternative for brain-holding operators.** Running
 `dev-review` from the brain root behaves exactly as Phases 0-4 above describe — it stamps
