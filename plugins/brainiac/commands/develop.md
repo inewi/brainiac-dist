@@ -293,15 +293,23 @@ Then run the inner loop:
 8. **Capture a retro (best-effort)** — right after handoff returns, record what the task hit
    (never blocks). Friction vocabulary: `spec-ambiguous`, `missing-fixture`,
    `cross-repo-contract`, `tooling`, `gate-false-positive`, `skill-silent`, `skill-misleading`,
-   `other`:
+   `decision`, `trade-off`, `other`:
 
    ```bash
    brainiac reflect capture --scope task --id <TASK_ID> --repo-name "<repo-name>" \
-     --friction "<comma-separated-tags>" --why-fought "<one line, no secrets>"
+     --friction "<comma-separated-tags>" --gate-failures "<gate-or-suite-that-refused>" \
+     --why-fought "<one line, no secrets>"
    ```
 
    Tag the *artifact or pipeline* condition, never an operator. Omit `--friction` if
-   frictionless.
+   frictionless — a clean run is still worth recording: it is the denominator the
+   friction rate is measured against.
+
+   **Pass a machine signal or the capture cannot ever be acted on.** A candidate needs two
+   corroborating evidence types and the friction tag is only the first; the second comes from
+   `--gate-failures <kinds>`, `--elapsed-ms <n>`, `--clarifications <n>`, or `--drift`. Pass
+   what the run actually produced and nothing it did not. `--repo-name` takes ONE repo — a
+   task touching two repos captures twice.
 
 Report what was accomplished and loop back to **P6** for the next task, or continue to **P9**
 when the epic is done.
