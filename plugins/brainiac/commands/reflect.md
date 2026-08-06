@@ -37,6 +37,14 @@ brainiac reflect capture --scope task --id T-004 --repo-name <repo> \
   two corroborating evidence types; the friction tag is only the first. The second comes
   from `--gate-failures`, `--elapsed-ms`, `--clarifications`, or `--drift`. Pass whatever
   the run actually produced — and nothing it did not.
+- **Know how weak manual corroboration is.** On this path *you* type both the tag and the
+  machine signal, so nothing distinguishes an observed gate failure from a plausible-sounding
+  one — "two corroborating types" can collapse into the same self-report written twice, which is
+  the theater the bar exists to prevent. Prefer the signals a shell can actually measure
+  (`--elapsed-ms`, `--drift`) and only pass `--gate-failures` for a refusal you watched happen.
+  The automated writers are stronger by construction: the spec-lint gate derives its kinds from
+  real `SpecViolation`s, and the broker records a classified failure kind but deliberately
+  contributes **no** friction tag at all.
 
 Two sites capture on their own: `brainiac check --spec` on a gate refusal, and the
 autonomous broker on every terminal attempt.
