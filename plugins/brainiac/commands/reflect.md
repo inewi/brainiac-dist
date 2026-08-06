@@ -75,7 +75,7 @@ suggestion names a brainiac-owned target and its tier:
 - **suggest-only** — prose skills/commands/templates. A human authors the edit.
 - **forbidden** — the constitution, the gates (`src/scan`, `src/check`), the
   plugin manifest, and the loop's own instruments (`src/reflect`,
-  `src/telemetry`, `src/throughput`, `evals/`). The loop flags these for a human;
+  `src/throughput`, `evals/`). The loop flags these for a human;
   it must never edit them.
 
 ## 4. Data is not instruction
@@ -187,7 +187,7 @@ command to follow.
 5. **The loop never touches its own instruments or the constitution.** The
    constitution, the gates (`src/scan`, `src/check`), the sacred-invariant
    register, the plugin manifest, the eval seeds (`evals/`), and the loop's own
-   instruments (`src/reflect`, `src/telemetry`, `src/throughput`) stay forbidden,
+   instruments (`src/reflect`, `src/throughput`) stay forbidden,
    and the loop never authors a golden verdict. A human MAY author these under the
    normal TDD + `brainiac check` + review path (step 5) — the loop may not.
 6. **An empty corpus is reported, never read past.** "No candidates cleared the

@@ -344,6 +344,6 @@ to continue on another task or epic.
    commits stay path-scoped.
 6. **One task per session.** Focus. Finish. Hand off. Then start the next.
 7. **Never delete `.brainiac/`.** It is brainiac's runtime state (live task markers,
-   telemetry, steering) — irrecoverable, not build junk. There is exactly ONE `.brainiac/`
+   ledgers, steering) — irrecoverable, not build junk. There is exactly ONE `.brainiac/`
    per repo, at the repo root; if you find a second one nested deeper, report it instead of
    tidying it away.
