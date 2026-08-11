@@ -114,6 +114,7 @@ delegates.
 | `/brainiac:contract` | Show the API/schema/interface a task promises to expose |
 | `/brainiac:debug` | Systematic debugging with brainiac-aware context |
 | `/brainiac:dev-review` | Epic-level implementer review — "could I build this as written?"; run it repo-upward from your target repo on the epic branch |
+| `/brainiac:epic-review` | Human epic-end review — floor, reviewer subagents per lens, TDD fixes, committed verdict envelope + PR comment |
 | `/brainiac:grill` | Relentlessly stress-test an authored design before build (task, epic, or spec) |
 | `/brainiac:grill-me` | Free-form, anytime grill — stress-test any idea mid-conversation, writes nothing |
 | `/brainiac:ground` | Inventory the repo + provision PII-free steering docs |
@@ -142,6 +143,7 @@ brainiac analyze        read-only cross-artifact + symbol-resolution gate
 brainiac status         read-only cross-repo rollup (--json for the cockpit feed)
 brainiac reconcile      read-only drift: live tasks.md vs published status.json
 brainiac handoff        grade harness + install gate + publish status + bootstrap
+brainiac epic-review    human epic-end review: --plan lens briefs / --floor gates / --comment PR mirror
 brainiac init           show the convention-provisioning plan (dry-run)
 brainiac install-hooks  install the pre-commit + pre-push gates
 brainiac migrate        roll provisioned repos forward to the current convention version

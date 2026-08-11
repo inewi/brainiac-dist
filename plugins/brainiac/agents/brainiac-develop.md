@@ -223,6 +223,17 @@ Then run the inner loop:
 Report what was accomplished, then loop back to P6 for the next task, or go to P9 when the
 epic is done.
 
+## P9a — Epic-end review
+
+When P6 reports all tasks done, run the epic-end review before finalizing:
+`npx --no-install brainiac epic-review --floor` (stop on red/cannot-run), then
+`--plan --json` for the lens briefs, one read-only reviewer per lens, an operator-chosen
+fix threshold, TDD fixes, a confirming re-review, then commit + push the verdict envelope
+(`.brainiac/reviews/EPIC-####.json`) and post the PR mirror via `--comment`. Do **not**
+finalize while the verdict is `blocked` unless the operator passes
+`--override-review-block "<reason>"` — finalize reads the origin-committed verdict and
+refuses otherwise.
+
 ## P9 — Finalize the epic
 
 When P6 reports all tasks done and `npx --no-install brainiac reconcile` is clean, finalize:

@@ -316,6 +316,16 @@ when the epic is done.
 
 ---
 
+## P9a — Epic-end review
+
+When P6 reports all tasks done, run **`/brainiac:epic-review`** before finalizing: floor →
+reviewer subagents per lens → operator-chosen fix threshold → TDD fixes → re-review →
+committed verdict envelope + PR comment. Do **not** `handoff --finalize-epic` while the
+verdict is `blocked` unless you pass `--override-review-block "<reason>"` — finalize reads
+the origin-committed verdict and refuses otherwise.
+
+---
+
 ## P9 — Finalize the epic
 
 When P6 reports all tasks done and `reconcile` is clean, push the final state and flip the draft
