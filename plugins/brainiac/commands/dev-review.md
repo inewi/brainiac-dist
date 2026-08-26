@@ -86,6 +86,15 @@ grounded inventory (`.brainiac/steering/`) wherever it settles the question:
 
 - **Affected symbols real** — does every symbol `design.md` names (NEW or MODIFY)
   actually exist, or not yet exist, where the spec says it does?
+- **Blast radius of shared symbols** — for every requirement that touches a
+  PRE-EXISTING or shared symbol (one the spec MODIFYs, or that other code already
+  calls), resolve the symbol's OTHER usages from the grounded inventory
+  (`.brainiac/steering/` + the repo itself) and ASK the operator the blast radius
+  before anything is built: "is this change intended only for the uniqueness check,
+  or import matching too?" A requirement can be satisfied while silently widening
+  behavior nobody asked to widen (EPIC-0004 T-004 loosened pre-existing import
+  merge-matching to `OrdinalIgnoreCase` and sailed every gate) — dev-review is
+  pre-diff, so it is the stage that PREVENTS that instead of discovering it.
 - **Technical schema fits repo reality** — do the proposed types, migrations, and
   interfaces match the repo's actual conventions and dependencies, not an assumed
   ideal?
@@ -124,6 +133,16 @@ ISO timestamp. The broker's reconcile parses exactly that shape to authorize dis
 a hand-written `dev-review.md` is silently rejected (`no readiness record`), so the epic
 stays gated and the daemon never picks it up. Grill findings go in `design.md`
 `## Dev Review notes` — never in `dev-review.md`.
+
+**Record every blast-radius answer in the spec itself** — this is what turns the ask
+into something the epic-review reverse-direction lens can enforce later. Where the
+operator's answer says the change is NARROWER than the touched semantics, write an
+explicit boundary line in `design.md` under the affected symbol:
+`MUST-NOT-CHANGE: <what stays exactly as-is, and for which callers>`. Where the answer
+says it is BROADER, add an explicit extra requirement in `requirements.md` covering the
+other usage. Either way, one `## Dev Review notes` bullet names the symbol, the other
+usages found, the question asked, and the operator's answer — so a reviewer reading the
+spec cold sees both the boundary and why it is there.
 
 ---
 
