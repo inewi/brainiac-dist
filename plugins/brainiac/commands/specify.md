@@ -112,6 +112,17 @@ of the work is auth/token/back-end plumbing (e.g. SSO/OIDC) — the visible scre
 UI surface. When `detected`, you must produce a mockup (Tier 2/3) or record a justified
 `UI-WAIVER:` line, or the spec gate (`check --spec`, `analyze`, `handoff`) will fail.
 
+**Confirm the trigger placement.** For every `ui_impact: detected` repo, present the
+INFERRED trigger surface — where the user reaches this feature (a button, a menu, a
+calendar cell, a dialog) — and ask confirm-or-correct: "I infer the trigger lives on
+<surface>. Confirm or correct." Record the answer in `## Screen structures` as
+`UI-PLACEMENT: confirmed by operator — <surface>` (a mockup reference,
+e.g. `UI-PLACEMENT: mockups/detailed/login.html`, also satisfies the gate). A mockup
+proves the pixels,
+not the placement — the gate fails a detected spec that carries no UI-PLACEMENT record,
+and an inferred-but-unconfirmed placement is exactly how EPIC-0009 put the DayOff
+trigger on the DayTypeRenderer when the operator meant the Calendar HeaderMenu.
+
 ### 3c. Generate wireframes (if PM confirmed)
 
 Generate low-fidelity wireframes into `mockups/wireframes/`:
@@ -180,6 +191,22 @@ a warning. If token budget exceeded, reduce screen count (most complex first)
 and note limitation.
 
 ### 3e. Write `design.md`
+
+**Precedent check first (A1+A2).** Before writing the Approach, scan the brief and the
+requirements for precedent intent — "mirrors", "like X", "follows X", "same as X", or a
+scope that reuses an existing flow's action verb. When any is present:
+
+1. **Unconditionally** enumerate the same-verb family from the grounded repo — the
+   endpoints/DTOs/flows with decision-relevant attributes (single vs multi-ID shape,
+   sync/async, authorization guard, UI trigger). Never skip the list because the brief
+   already names a candidate — the family list doubles as the "deviate toward what" menu.
+2. Operator picks/confirms the precedent X from the list.
+3. Per-dimension inherit-or-deviate asks against what X ACTUALLY has — mechanics,
+   authorization, request shape, scope, UI placement — each grounded in X's real
+   guard/DTO shape/endpoint/trigger.
+4. Record in `## Precedent`: chosen precedent, rejected candidates, and the dimensions
+   verdicts. The spec gate fails a spec that cites a precedent without a filled record
+   here (presence only, never content). Nothing cites a precedent? Delete the section.
 
 Write `## Approach`, `## Affected symbols` (cite stable names, mark NEW/MODIFY),
 and `## Data / contracts`. Fill the `## Screen structures` section:
