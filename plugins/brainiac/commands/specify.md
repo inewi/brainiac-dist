@@ -206,6 +206,30 @@ a `## New components` section:
 - [ ] T-00N: Create FilterChip component (needed by dashboard filter bar)
 ```
 
+**A task whose new tests are EXPECTED to fail MUST carry `[red]`.** This is the
+red half of red/green — a test-first task that lands a deliberately failing
+suite, cleared by a later task. Put the token in the task BODY (after the id),
+alongside `depends_on`:
+
+```
+- [ ] T-003: Write failing DayOffServiceTests, confirm the red suite [red] (depends_on: T-002)
+- [ ] T-004: Implement ResetAsync, make the T-003 suite green (depends_on: T-003)
+```
+
+Without it the broker's verify rejects the very failure the task exists to
+produce, and the run is booked failed — the task text saying "write failing
+tests" is not enough, the machine only reads the token.
+
+**In a compiled language (C#, Java, Go, Rust, strict TS), split the signature
+into its own earlier task.** A test calling a member that does not exist yet
+fails to COMPILE rather than failing red, and a `[red]` commit may only touch
+test files — so one task can never satisfy both. Land the signature plus a
+`NotImplementedException`-style stub first, then the test task is genuinely
+test-only. Placement matters: the
+parser matches `T-###:` first and tests for `[red]` in what follows, so a token
+placed BEFORE the id drops the task from the graph entirely. `brainiac check
+--spec` warns when a task reads as test-first but carries no marker.
+
 Where you are unsure of a decision, leave a `[NEEDS-CLARIFICATION]` marker in
 place — `/brainiac:clarify` resolves these later. Never invent a fact about the
 repo; cite the inventory or mark it for clarification.

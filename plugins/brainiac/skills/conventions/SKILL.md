@@ -54,6 +54,46 @@ Rules:
 - No cycles allowed (enforced by `brainiac plan`)
 - Tasks can depend across repos with a **repo-qualified** id: `(depends_on: billing:T-003)` (the sequencer injects these; single-repo `plan` treats a `<repo>:T-###` dep as external, not a missing local task)
 
+## `[red]` — test-first tasks
+
+A task whose new tests are **expected to fail** until a later task fixes the code MUST
+carry the `[red]` token in its body:
+
+```markdown
+- [ ] T-003: Write failing DayOffServiceTests, confirm the red suite [red] (depends_on: T-002)
+- [ ] T-004: Implement ResetAsync, make the T-003 suite green (depends_on: T-003)
+```
+
+Rules:
+
+- The token goes AFTER the `T-###:` id — the parser matches the id first and reads `[red]`
+  from the remainder, so a token placed before it drops the task from the graph entirely
+- Descriptive prose ("write failing tests") is NOT enough; the machine reads only the token
+- Without it the broker's verify rejects the deliberately failing suite and books the run
+  failed — the task cannot pass, no matter how it is implemented
+- A `[red]` commit may only ADD or MODIFY test files; verify holds it to that shape
+- At most ONE red set is outstanding at a time — only its clearing task dispatches until
+  the suite is green again
+- `brainiac check --spec` warns (advisory) when a task reads as test-first but has no marker
+
+### Compiled languages: split the signature out first
+
+In C#, Java, Go, Rust or strict TypeScript a test calling a member that does not exist yet
+does **not** fail red — it fails to **compile**. A `[red]` commit may only touch test files,
+so a red suite is unreachable in one task: tests-only won't build, and tests-plus-stub is
+refused by the scope gate. Both rules are individually right and jointly unsatisfiable.
+
+Author it as two tasks — the signature lands first, then the suite is genuinely test-only:
+
+```markdown
+- [ ] T-003: Add the `ResetAsync(...)` signature + a `NotImplementedException` stub (depends_on: T-002)
+- [ ] T-004: Write the failing `DayOffServiceTests` [red] (depends_on: T-003)
+- [ ] T-005: Implement `ResetAsync`, make the T-004 suite green (depends_on: T-004)
+```
+
+Do NOT relax the gate to let a "small" stub ride along with the tests — that a red commit
+cannot touch production is the entire reason red-tolerance is safe.
+
 ## Contract-Before-Consumer
 
 When task T in repo A references `[repo:B]`, repo B MUST have a contract-publishing task (containing: export, expose, publish, api, endpoint, contract, interface, schema, openapi, grpc, proto, route, handler, or provider). `brainiac sequencer --auto-edge` injects missing `depends_on` edges.
