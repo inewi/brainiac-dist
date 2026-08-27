@@ -106,6 +106,15 @@ review is the pipeline's analysis phase; consider running `/brainiac:dev-review`
 brain first)" — `[y]` proceed · `[n]` pick another. This is an advisory confirmation for
 humans; the broker's hard agentic-approval gate is unaffected either way.
 
+**Dependency hold (D4) — same soft gate.** Check the picked epic's effective
+dependencies: its own `depends_on:` list ∪ its initiative's. If any named dependency is
+not READY — its per-repo `tasks.md` still has unticked boxes, or its epic.md
+`dev_review` is `none` — stop and confirm: "EPIC-#### waits on EPIC-#### (scope not
+done / not dev-reviewed) — proceed anyway? (the autonomous broker hard-refuses this
+(`dependency-hold`); building on an unfinished producer means a seam re-run later)" —
+`[y]` proceed · `[n]` pick another. The broker's mechanical hold/release gate is the
+hard version of this; on the human flow it stays a confirmation.
+
 **Dirty-tree policy:** `enter` refuses on modified/staged **tracked** files and prints the
 offending paths — it **never auto-stashes**. Stash explicitly and re-run:
 
