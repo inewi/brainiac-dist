@@ -38,7 +38,7 @@ brainiac specify "<title>" [--epic EPIC-####]
 /brainiac:specify
 ```
 
-Scaffold a spec the ONE WAY into `specs/EPIC-####-slug/` with `requirements.md`, `design.md`, and `tasks.md`. If no `--epic` is provided, a fresh EPIC ID is minted from `registry/ids.json`.
+Scaffold a spec the ONE WAY into `specs/EPIC-####-slug/` with `requirements.md`, `design.md`, and `tasks.md`. If no `--epic` is provided, a fresh EPIC ID is minted from `registry/ids.json` — collision-free across devboxes via a reservation ref pushed to `origin` — which requires the mint to run from the brain repo root (`--brain-root`), never from a target repo.
 
 Gate with: `brainiac check --spec <dir>`
 

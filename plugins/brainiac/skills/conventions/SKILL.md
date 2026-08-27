@@ -37,6 +37,11 @@ Every requirement is testable. No "should," "could," or "might."
 - INIT IDs are minted from `registry/ids.json` via `brainiac id mint INIT`
 - IDs are sequential, zero-padded to 4 digits (EPIC-0001, INIT-0003)
 - Never hand-write an ID. Always mint.
+- Minting is collision-free across devboxes: with an `origin` configured, every mint reserves
+  the id first via a unique ref on `origin` before persisting the local counter. Minting
+  **refuses** when run from a git repo that is not the brain root, and refuses loudly when
+  `origin` is configured but unreachable — it mints locally, unreserved, only for a brain
+  with no `origin` at all or a registry path outside any git repo.
 
 ## depends_on Edges
 
