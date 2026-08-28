@@ -66,6 +66,19 @@ cat "<repo-root>/.brainiac/steering"/*.md 2>/dev/null
 cat "<spec-home>/requirements.md" "<spec-home>/design.md" "<spec-home>/tasks.md"
 ```
 
+Refresh every home BEFORE reading it (the verb does this again at the gate — this step
+protects the interview's judgments; a workspace 14 commits behind origin once read as
+"the dependency never landed"):
+
+```bash
+git -C <repo-root> fetch origin +refs/heads/<branch>:refs/remotes/origin/<branch>
+git -C <repo-root> pull --ff-only
+```
+
+A home that cannot fast-forward (diverged / dirty tree) or cannot reach origin is a
+BLOCKING finding for that repo — record it and stop; the verb will refuse to stamp it
+anyway. Never `reset`/`rebase` a home to force the refresh.
+
 If **neither** home resolves for a repo, do not skip it silently — record it as a
 blocking finding for that repo (spec unreachable) and carry it into Phase 3's report.
 A repo dev-review cannot read is a repo it cannot clear.

@@ -30,8 +30,10 @@ refuses an ungrounded repo and tells you to run `/brainiac:ground` first.
 
 On success it prints `analyze: OK (N symbol(s) resolved, M advisory)`, exiting 0.
 Advisories (printed as `advisory: [<kind>] …`, e.g. a `stale-inventory` when
-HEAD moved since grounding) do NOT fail the gate, but a stale inventory is worth
-re-grounding before handoff.
+HEAD moved since grounding, or a `citation-format` when an `## Affected symbols`
+bullet is not in the `- \`Name\` (path) — **NEW|MODIFY**: <reason>` form — the
+message names the offending bullet and the expected shape) do NOT fail the gate,
+but a stale inventory is worth re-grounding before handoff.
 
 On an error finding it lists each `analyze: [<kind>] <detail>` and exits 1. Fix
 the cause in the spec, then re-run until it returns 0:
