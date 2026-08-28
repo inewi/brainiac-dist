@@ -231,7 +231,7 @@ identity, date, and a digest of the reviewed spec content — to
 `.brainiac/status.json`, and prints the seam:
 
 ```text
-next: brainiac dev-review reconcile --epic EPIC-####   (run at the brain, or let the post-merge hook do it)
+next: commit + push specs/EPIC-####-slug/dev-review.md to the epic branch, then brainiac dev-review reconcile --epic EPIC-####   (run at the brain, or let the post-merge hook do it)
 ```
 
 The record never touches the brain by itself. A **brain-credentialed** actor mirrors it up:
@@ -240,8 +240,9 @@ The record never touches the brain by itself. A **brain-credentialed** actor mir
 brainiac dev-review reconcile --epic EPIC-####   # or: --all, to sweep every epic
 ```
 
-`reconcile` re-verifies each affected repo's readiness record (reviewer identity present + the
-digest still matching the spec on disk — a spec edited after review fails the check and blocks
+`reconcile` re-verifies each affected repo's readiness record **at the origin epic-branch tip**
+(reviewer identity present + the digest still matching the spec at that sha — a spec edited
+after review fails the check and blocks
 that repo's mirror, no manual demote needed) and mirrors **each trusted repo INDEPENDENTLY**
 into `agentic_repos` on the brain's `epic.md`, alongside `dev_review: <date>`. There is no
 all-or-nothing barrier: a repo with no record, a stale record, or a demoted record never blocks
