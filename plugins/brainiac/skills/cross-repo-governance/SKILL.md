@@ -14,12 +14,6 @@ materialize — and interleaves grill / rollup / retro, all in one command. Reac
 directly when you drive the governance steps by hand (between ships, or a single-repo pass); reach
 for `/brainiac:ship` to run the whole PM pipeline end to end.
 
-> **Host note (Copilot CLI):** the `/brainiac:*` slash-commands are a Claude Code surface and do
-> not exist in GitHub Copilot CLI. On Copilot, invoke the `brainiac-ship`, `brainiac-develop`, and
-> `brainiac` agents and run each CLI verb as `npx --no-install brainiac <verb>`. For tool-name
-> equivalents (Read → view, Edit → edit, Bash → bash, Skill → skill, …) see
-> `references/copilot-tools.md`.
-
 ## Phase 1: Ground
 
 ```

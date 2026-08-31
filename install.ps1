@@ -1,6 +1,6 @@
 <#
 install.ps1 — install the brainiac CLI on Windows with NO inewi access. Downloads the prebuilt
-binary for windows-x64 from the PUBLIC inewi/brainiac-dist releases, then (when a Claude/Copilot
+binary for windows-x64 from the PUBLIC inewi/brainiac-dist releases, then (when a Claude
 CLI is present) wires the public dev plugin + superpowers via `brainiac setup --dev`.
 
   irm https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.ps1 | iex
@@ -120,8 +120,7 @@ if (-not $onPath) {
 
 $brainiac = Join-Path $BinDir 'brainiac.exe'
 if (-not $NoSetup) {
-  $hasHost = (Get-Command claude -ErrorAction SilentlyContinue) -or `
-    (Get-Command copilot -ErrorAction SilentlyContinue)
+  $hasHost = (Get-Command claude -ErrorAction SilentlyContinue)
   if ($hasHost) {
     Write-Host "brainiac: wiring the dev plugin + superpowers (brainiac setup --dev)"
     Write-Host "brainiac: cloning the brainiac + superpowers marketplaces over the network — first run can take 10-30s..."
@@ -130,6 +129,6 @@ if (-not $NoSetup) {
       Write-Warning "brainiac: 'setup --dev' did not finish (exit $LASTEXITCODE) — re-run '$brainiac setup --dev' later"
     }
   } else {
-    Write-Host "brainiac: no Claude/Copilot CLI found — run '$brainiac setup --dev' after installing one"
+    Write-Host "brainiac: no Claude CLI found — run '$brainiac setup --dev' after installing one"
   }
 }

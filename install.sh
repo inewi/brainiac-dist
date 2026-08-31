@@ -2,7 +2,7 @@
 # install.sh — install the brainiac CLI with NO inewi access. Downloads the prebuilt binary
 # for your platform over HTTPS from the PUBLIC inewi/brainiac-dist releases and verifies it
 # against the release's SHA256SUMS manifest (checksum integrity only — downloads are NOT
-# signature-verified; do not claim otherwise), then (when a Claude/Copilot CLI is present)
+# signature-verified; do not claim otherwise), then (when a Claude CLI is present)
 # wires the public dev plugin + superpowers via `brainiac setup --dev`.
 #
 #   curl -fsSL https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.sh | sh
@@ -131,7 +131,7 @@ case ":${PATH}:" in
 esac
 
 if [ "$DO_SETUP" -eq 1 ]; then
-  if command -v claude >/dev/null 2>&1 || command -v copilot >/dev/null 2>&1; then
+  if command -v claude >/dev/null 2>&1; then
     echo "brainiac: wiring the dev plugin + superpowers (brainiac setup --dev)"
     echo "brainiac: cloning the brainiac + superpowers marketplaces over the network — first run can take 10-30s..."
     "${BIN_DIR}/brainiac" setup --dev
@@ -146,6 +146,6 @@ if [ "$DO_SETUP" -eq 1 ]; then
       fi
     fi
   else
-    echo "brainiac: no Claude/Copilot CLI found — run '${BIN_DIR}/brainiac setup --dev' after installing one"
+    echo "brainiac: no Claude CLI found — run '${BIN_DIR}/brainiac setup --dev' after installing one"
   fi
 fi

@@ -32,8 +32,8 @@ irm https://raw.githubusercontent.com/inewi/brainiac-dist/main/install.ps1 | iex
 
 Installs the prebuilt `brainiac` CLI for macOS (arm64/x64), Linux (x64/arm64), and Windows (x64)
 into `~/.local/bin` (`%USERPROFILE%\.local\bin` on Windows), then runs `brainiac setup --dev`
-to wire the `brainiac` plugin + superpowers on each detected host (Claude Code or Copilot
-CLI). No inewi access required. **Re-run either command anytime to update**
+to wire the `brainiac` plugin + superpowers on Claude Code. No inewi access required.
+**Re-run either command anytime to update**
 (`brainiac --version` to confirm). Then:
 
 ```sh
@@ -53,12 +53,6 @@ If you already have the `brainiac` CLI, or want to install the plugin by hand:
 # Claude Code — superpowers auto-installs as a dependency (claude-plugins-official is built-in)
 claude plugin marketplace add inewi/brainiac-dist
 claude plugin install brainiac@inewi
-
-# Copilot CLI — superpowers resolves from a different marketplace, so add it explicitly
-copilot plugin marketplace add inewi/brainiac-dist
-copilot plugin install brainiac@inewi
-copilot plugin marketplace add obra/superpowers-marketplace
-copilot plugin install superpowers@superpowers-marketplace
 ```
 
 ## What you get
@@ -68,7 +62,6 @@ copilot plugin install superpowers@superpowers-marketplace
 | Dev pipeline (`/brainiac:develop`) | Git-native: enter an epic branch → next unblocked task → TDD → push-per-task → finalize the epic | GA |
 | Enforcement gates (`brainiac check` + hooks) | Path-deprecation + secret/PII gates in the pre-commit hook; opt-in spec + freshness gates | GA |
 | Interactive cockpit (`brainiac` / `dash`) | Mission-control TUI: pulses, CONTRACTS, TRENDS, drift, one-key agent handoff | GA |
-| GitHub Copilot CLI surface | The same pipelines as agents + skills — Copilot ingests no slash commands, so brainiac ships them as agents | GA |
 | Reflection loop (`brainiac reflect`) | Friction capture → human-reviewed suggestions; never auto-applies | GA (advisory) |
 | Repo provisioning (`brainiac init`) | Detect-and-coexist convention rollout | Preview (Phase-0 dry-run) |
 
@@ -162,14 +155,9 @@ brainiac --version      print version and exit
 - **guardrails** — pre-flight safety checks that catch dependency gaps, contract violations,
   and spec drift before they become rework
 
-### Agents (Copilot CLI)
-
-- **brainiac-develop** — the dev pipeline
-- **brainiac** — generalist: routes any verb to its CLI command or the right skill
-
 ## Requirements
 
-- **Claude Code** v2.1.110 or later, or **GitHub Copilot CLI**
+- **Claude Code** v2.1.110 or later
 - **git** — grounding, handoff, and the check gate use git
 - **universal-ctags** (optional) — Swift symbol extraction only; if absent, `.swift` files
   are skipped with a clear advisory
@@ -189,13 +177,10 @@ brainiac specify "Add CSV Export" --repo . --brain-root .
 /brainiac:develop
 ```
 
-In Copilot CLI, invoke the `brainiac-develop` agent instead of the slash-command — same
-pipeline, different surface. brainiac is **dogfooded on its own dev pipeline**.
-
 ## How it's built
 
 brainiac is **generated** from the canonical `brainiac` plugin by `npm run build:dev-plugin`
-(`src/plugin-split/generate-dev-plugin.ts`). It copies every dev-safe command, skill, and agent
+(`src/plugin-split/generate-dev-plugin.ts`). It copies every dev-safe command and skill
 (= everything not in the PM-only partition), writes a `dependencies`-declaring manifest with
 the cross-marketplace `allowCrossMarketplaceDependenciesOn` allowlist, and refuses to publish
 if any emitted file leaks internal knowledge. The source repo is private; this dist repo is

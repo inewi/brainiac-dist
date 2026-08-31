@@ -158,12 +158,10 @@ Detect design system from `.brainiac/steering/design-system.md`:
 - [n] Skip, wireframes are sufficient
 - [c] Custom: specify a different component library
 
-**Use the design specialist.** On Claude Code, invoke the `frontend-design` skill
+**Use the design specialist.** Invoke the `frontend-design` skill
 (`Skill({skill: "frontend-design:frontend-design"})`) BEFORE authoring `mockups/detailed/`
 — it supplies the production-grade aesthetic bar (distinctive typography, cohesive color,
-purposeful composition) and avoids generic AI output. On a host that cannot ingest skills
-(e.g. Copilot CLI), fall back to authoring the mockups inline per the constraints below.
-brainiac owns the contract (PII `@example.com`, WCAG 2.1, design-system tokens from
+purposeful composition) and avoids generic AI output. brainiac owns the contract (PII `@example.com`, WCAG 2.1, design-system tokens from
 `.brainiac/steering/design-system.md`, the `[-- ComponentName (NEW) --]` placeholder +
 auto-task rule); the skill supplies the taste. For the low-fi wireframe tier, tell it to
 stay **restrained** (schematic, not maximalist).
