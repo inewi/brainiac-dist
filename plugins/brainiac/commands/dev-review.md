@@ -118,6 +118,13 @@ grounded inventory (`.brainiac/steering/`) wherever it settles the question:
   with no task hiding an undeclared prerequisite?
 - **Cross-repo pass** — check plan.md's contract ordering against the sequencer's
   injected edges — contracts publish before consumers.
+- **Epic summary honest** — read the epic home's prose (Goal / Cross-repo plan /
+  Verification in `epics/EPIC-####/epic.md`) against the spec trio. A contradiction is a
+  gate finding: correct the epic prose before stamping, or HALT if the *spec* is the
+  wrong side. This is a semantic check only this gate can make — EPIC-0013's spec said
+  encrypted-at-write while its Goal said "plaintext — encryption deferred", and two
+  dev-review passes stamped green without looking sideways at the summary the approver
+  actually reads.
 
 Record every unresolved branch as a `[NEEDS-CLARIFICATION] <the open question>` marker
 on the affected `requirements.md`/`design.md` line — the same notation and the same

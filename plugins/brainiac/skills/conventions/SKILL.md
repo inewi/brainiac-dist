@@ -20,6 +20,14 @@ Every spec lives in `<repo>/specs/EPIC-####-slug/` and contains exactly three fi
 
 No other structure is valid. `brainiac check --spec` enforces this.
 
+**The epic home summarizes; the spec decides.** `epics/EPIC-####/epic.md`'s Goal states
+the *outcome*; contract, storage, and security decisions live in the spec trio and are
+pointed to, never restated. A restated decision creates a second home for one fact, and
+the second home drifts the moment a grill or clarify pass updates the spec (EPIC-0013's
+Goal carried "plaintext — encryption deferred" for days after the spec switched to
+per-field encryption at write time). If the Goal must mention such a decision, cite the
+spec section instead of repeating its content.
+
 ## EARS Notation
 
 Requirements use EARS (Easy Approach to Requirements Syntax):

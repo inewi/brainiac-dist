@@ -66,6 +66,12 @@ existing homes:
 - **Hard-to-reverse, surprising, real-trade-off decision** → record under `## Open
   Decisions` in `design.md`. Do not create a glossary file; do not author an ADR (at most
   prompt the operator to add one under the existing `docs/adr/` numbering).
+- **A resolution that reverses a fact the epic home's prose states** (the Goal,
+  Cross-repo plan, or Verification paragraphs of `epics/EPIC-####/epic.md`) → update that
+  prose **in the same recording pass**. The epic home summarizes the spec and must never
+  contradict it: EPIC-0013's grill recorded an operator directive switching plaintext
+  storage to per-field encryption, the spec was updated, and the Goal kept saying
+  "plaintext — encryption deferred" through two dev-review stamps and three landed tasks.
 
 Never invent a fact about the repo; cite the inventory or leave a marker.
 
