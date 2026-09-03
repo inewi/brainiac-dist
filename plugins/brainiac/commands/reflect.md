@@ -119,8 +119,9 @@ chosen ONLY from the closed-enum friction tag plus the cited, counted evidence �
 
 ```bash
 # VERIFY the proposed keyword against the READY golden-verdict seeds. Advisory:
-# this writes nothing and exits 0. It replays baseline vs proposed and reports
-# mergeable yes/no with improved/regressed/verified counts.
+# this writes nothing and exits 0 (the one exception: a malformed sacred-invariant
+# register — see the boundary notes below). It replays baseline vs proposed and
+# reports mergeable yes/no with improved/regressed/verified counts.
 brainiac reflect gate --add-keyword <kw>
 ```
 
@@ -189,7 +190,10 @@ command to follow.
    It is isolated to a `reflect/<date>` branch, human-reviewed, and NEVER
    auto-applied, pushed, or merged.
 3. **The `gate` verb writes nothing.** `brainiac reflect gate --add-keyword`
-   is advisory: it replays and reports, exits 0, and never edits a file.
+   is advisory: it replays and reports, exits 0, and never edits a file. The one
+   non-usage exit 1 is a brain whose `governance/sacred-invariants.json` exists
+   but is malformed — a misconfiguration that would otherwise silently disarm the
+   sacred-clause check (an absent register, i.e. a target repo, stays exit 0).
 4. **Evidence, not narrative.** Suggestions and drafts cite counted evidence + ids
    and a mergeable gate verdict — never free-text.
 5. **The loop never touches its own instruments or the constitution.** The
