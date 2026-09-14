@@ -87,6 +87,11 @@ Rules:
 - A `[red]` commit may only ADD or MODIFY test files; verify holds it to that shape
 - At most ONE red set is outstanding at a time — only its clearing task dispatches until
   the suite is green again
+- Exactly ONE token per task body. The marker is free-position, so a second occurrence —
+  including prose that merely quotes `[red]` while explaining the task — is undecidable, and
+  brainiac refuses rather than guess: `check --spec` FAILS with `ambiguous-red-marker`, and the
+  broker skips the spec source before any attempt is booked. Describe such a task without
+  writing the token again
 - `brainiac check --spec` warns (advisory) when a task reads as test-first but has no marker
 
 ### Compiled languages: split the signature out first

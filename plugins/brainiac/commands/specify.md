@@ -245,6 +245,13 @@ Without it the broker's verify rejects the very failure the task exists to
 produce, and the run is booked failed — the task text saying "write failing
 tests" is not enough, the machine only reads the token.
 
+**Write the token exactly ONCE per task body.** Because it is free-position, a
+second occurrence — including prose that quotes `[red]` while explaining what the
+task is or is not — cannot be told apart from the annotation. brainiac refuses
+the ambiguity instead of guessing: `brainiac check --spec` FAILS with
+`ambiguous-red-marker`, and the broker refuses the spec source before it books an
+attempt. Explain such a task in words that do not repeat the token.
+
 **In a compiled language (C#, Java, Go, Rust, strict TS), split the signature
 into its own earlier task.** A test calling a member that does not exist yet
 fails to COMPILE rather than failing red, and a `[red]` commit may only touch
