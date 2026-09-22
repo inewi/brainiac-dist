@@ -119,7 +119,26 @@ if (-not $onPath) {
 }
 
 $brainiac = Join-Path $BinDir 'brainiac.exe'
-if (-not $NoSetup) {
+# brainiac installs its plugin at Claude Code PROJECT scope, so `setup` needs a repository to
+# install into — and this script runs wherever the developer happened to be, often their home
+# directory. Wiring there would record the install against a non-repo and leave the repo they
+# actually work in without the plugin, so check first and name the one command to run.
+$inRepo = $false
+if (Get-Command git -ErrorAction SilentlyContinue) {
+  # Windows PowerShell 5.1 turns a native command's stderr into a terminating NativeCommandError
+  # under $ErrorActionPreference = 'Stop' — exactly in the "not a repo" case being probed. Relax
+  # the preference around the probe and decide on the exit code, never on an exception.
+  $prevEap = $ErrorActionPreference
+  $ErrorActionPreference = 'SilentlyContinue'
+  $probe = & git rev-parse --is-inside-work-tree 2>$null
+  $ErrorActionPreference = $prevEap
+  $inRepo = ($LASTEXITCODE -eq 0) -and ("$probe".Trim() -eq 'true')
+}
+
+if ((-not $NoSetup) -and (-not $inRepo)) {
+  Write-Host "brainiac: not inside a git repo — skipping the plugin wiring."
+  Write-Host "brainiac: cd into the repo you want brainiac in and run '$brainiac setup --dev' there (once per repo)."
+} elseif (-not $NoSetup) {
   $hasHost = (Get-Command claude -ErrorAction SilentlyContinue)
   if ($hasHost) {
     Write-Host "brainiac: wiring the dev plugin + superpowers (brainiac setup --dev)"

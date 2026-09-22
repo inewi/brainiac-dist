@@ -9,6 +9,9 @@
 #
 # Options (pass after `| sh -s --`):
 #   --no-setup            install the binaries only; skip `brainiac setup --dev`
+#
+# The plugin installs at Claude Code PROJECT scope, so the wiring step only runs when this script
+# is invoked from inside a git repo. Run `brainiac setup --dev` once in each repo you use it in.
 #   --bin-dir <dir>       install location (default: $HOME/.local/bin)
 #
 # Generated from inewi/brainiac-pipeline (packaging/install.sh). Do not edit on the dist repo.
@@ -130,7 +133,21 @@ case ":${PATH}:" in
   *) echo "brainiac: add ${BIN_DIR} to your PATH, e.g.  echo 'export PATH=\"${BIN_DIR}:\$PATH\"' >> ~/.profile" ;;
 esac
 
-if [ "$DO_SETUP" -eq 1 ]; then
+# brainiac installs its plugin at Claude Code PROJECT scope, so `setup` needs a repository to
+# install into — and this script runs wherever the developer happened to be, often their home
+# directory. Wiring there would record the install against a non-repo and leave the repo they
+# actually work in without the plugin, so check first and tell them the one command to run.
+in_repo=0
+if command -v git >/dev/null 2>&1; then
+  if [ "$(git rev-parse --is-inside-work-tree 2>/dev/null || echo false)" = "true" ]; then
+    in_repo=1
+  fi
+fi
+
+if [ "$DO_SETUP" -eq 1 ] && [ "$in_repo" -eq 0 ]; then
+  echo "brainiac: not inside a git repo — skipping the plugin wiring."
+  echo "brainiac: cd into the repo you want brainiac in and run '${BIN_DIR}/brainiac setup --dev' there (once per repo)."
+elif [ "$DO_SETUP" -eq 1 ]; then
   if command -v claude >/dev/null 2>&1; then
     echo "brainiac: wiring the dev plugin + superpowers (brainiac setup --dev)"
     echo "brainiac: cloning the brainiac + superpowers marketplaces over the network — first run can take 10-30s..."

@@ -52,8 +52,13 @@ If you already have the `brainiac` CLI, or want to install the plugin by hand:
 ```sh
 # Claude Code — superpowers auto-installs as a dependency (claude-plugins-official is built-in)
 claude plugin marketplace add inewi/brainiac-dist
-claude plugin install brainiac@inewi
+claude plugin install brainiac@inewi --scope project
 ```
+
+brainiac installs at **project scope**: the enable lands in the repo's committed
+`.claude/settings.json`, so its commands and skills load only inside repos that opted in — not in
+every Claude session. Run the install (or `brainiac setup --dev`, which the first
+`brainiac ground` in a repo does for you) once per repo, per machine. superpowers stays user-wide.
 
 ## What you get
 
