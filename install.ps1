@@ -137,7 +137,7 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 
 if ((-not $NoSetup) -and (-not $inRepo)) {
   Write-Host "brainiac: not inside a git repo — skipping the plugin wiring."
-  Write-Host "brainiac: cd into the repo you want brainiac in and run '$brainiac setup --dev' there (once per repo)."
+  Write-Host "brainiac: cd into the repo you want brainiac in and run '$brainiac init' there (once per repo)."
 } elseif (-not $NoSetup) {
   $hasHost = (Get-Command claude -ErrorAction SilentlyContinue)
   if ($hasHost) {

@@ -57,8 +57,8 @@ claude plugin install brainiac@inewi --scope project
 
 brainiac installs at **project scope**: the enable lands in the repo's committed
 `.claude/settings.json`, so its commands and skills load only inside repos that opted in — not in
-every Claude session. Run the install (or `brainiac setup --dev`, which the first
-`brainiac ground` in a repo does for you) once per repo, per machine. superpowers stays user-wide.
+every Claude session. Run `brainiac init` in each repo instead of the manual install — it inventories
+the repo, installs the git gates and wires the plugin, once per repo, per machine. superpowers stays user-wide.
 
 ## What you get
 

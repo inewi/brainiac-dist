@@ -146,7 +146,7 @@ fi
 
 if [ "$DO_SETUP" -eq 1 ] && [ "$in_repo" -eq 0 ]; then
   echo "brainiac: not inside a git repo — skipping the plugin wiring."
-  echo "brainiac: cd into the repo you want brainiac in and run '${BIN_DIR}/brainiac setup --dev' there (once per repo)."
+  echo "brainiac: cd into the repo you want brainiac in and run '${BIN_DIR}/brainiac init' there (once per repo)."
 elif [ "$DO_SETUP" -eq 1 ]; then
   if command -v claude >/dev/null 2>&1; then
     echo "brainiac: wiring the dev plugin + superpowers (brainiac setup --dev)"
