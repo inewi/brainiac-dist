@@ -1,5 +1,5 @@
 ---
-description: Read-only drift differ — recompute live status from on-disk tasks.md checkboxes (repo checkbox wins) and diff it against the published .brainiac/status.json. Never writes.
+description: Read-only drift differ — diff the epics and spec homes on disk against the published .brainiac/status.json. Never compares task checkboxes (they are the status) and never writes.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 
@@ -21,13 +21,13 @@ has fallen behind.
 brainiac reconcile --root "<repo>"
 ```
 
-The engine builds the live status from on-disk checkboxes (repo checkbox wins),
-reads the published `.brainiac/status.json`, and diffs the two — ignoring the
-`generated_at` timestamp.
+The engine discovers the epics and their spec homes on disk, reads the published
+`.brainiac/status.json`, and diffs the two — never the task checkboxes (they are
+the status) and never the `generated_at`/`generated_from` stamps.
 
 ## 2. Act on the output
 
-When in sync it prints `reconcile: <repo>: in sync (done/total tasks done)` and exits 0.
+When in sync it prints `reconcile: <repo>: in sync` and exits 0.
 
 When drift exists it lists each `reconcile: <repo>: [<kind>] <detail>` and exits 1.
 Every line names the checkout it diffed. Run at a brain root (a tree carrying
@@ -40,12 +40,14 @@ manifest. Drift kinds:
 
 - `no-published-status` — no `.brainiac/status.json` (or it is malformed). The
   repo was never handed off; run `/brainiac:handoff` to publish.
-- `rollup-changed` — the task done/total advanced since publish (checkboxes
-  moved). Re-publish to record the progress.
 - `epic-added` / `epic-removed` — an `EPIC-####` home appeared or vanished
   versus the published manifest.
 - `backref-changed` — an epic's spec back-reference moved.
-- `convention-version-changed` / `head-moved` — the brainiac convention version
-  or repo HEAD advanced since publish.
+- `convention-version-changed` — the brainiac convention version advanced since
+  publish.
+
+Task checkboxes are never compared: they ARE the status, and `status.json`
+carries no copy of them (`brainiac status` counts them live). A commit after
+publish is not drift either.
 
 reconcile is a read-only audit: report it green only when it exits 0.

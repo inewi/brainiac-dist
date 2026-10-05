@@ -31,7 +31,8 @@ Run this from the root of the target repo (the web or billing clone), not from t
    - `.brainiac/steering/tech.md` — languages, grounded-file count, out-of-scope notes (e.g. the C# subsystem deferred this phase).
    - `.brainiac/steering/structure.md` — per-file symbol names.
    - `.brainiac/steering/product.md` — classified endpoints and UI components.
-   - `.brainiac/status.json` — epic ids, back-refs, checkbox rollup, integration branch.
+   - `.brainiac/status.json` — epic ids, back-refs, integration branch (task progress is the
+     `tasks.md` checkboxes themselves, counted live — no copy here).
 
 ## Phase 2 — write and advisory scan
 

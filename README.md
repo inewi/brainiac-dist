@@ -121,11 +121,11 @@ delegates.
 | `/brainiac:migrate` | Roll provisioned repos forward to current convention version |
 | `/brainiac:plan` | Validate + foundations-first phase a spec's tasks.md graph |
 | `/brainiac:quick` | Escape hatch — skips ceremony, keeps TDD/verification/gates |
-| `/brainiac:reconcile` | Read-only drift: live tasks.md vs published status.json |
+| `/brainiac:reconcile` | Read-only drift: the epics and spec homes on disk vs published status.json |
 | `/brainiac:reflect` | Review captured friction, surface evidence-ranked suggestions |
 | `/brainiac:sequencer` | Detect dangling cross-repo edges + inject contract-consumer edges |
 | `/brainiac:specify` | Scaffold a spec the ONE WAY into specs/EPIC-####-slug/ |
-| `/brainiac:status` | Cross-repo task dashboard — reads status.json across repos |
+| `/brainiac:status` | Cross-repo task dashboard — counts each repo's tasks.md checkboxes |
 | `/brainiac:tasks` | Validate the cross-repo task graph for an epic |
 
 ### CLI verbs (terminal)
@@ -139,7 +139,7 @@ brainiac specify        scaffold a spec the ONE WAY
 brainiac plan           validate + phase the tasks.md graph
 brainiac analyze        read-only cross-artifact + symbol-resolution gate
 brainiac status         read-only cross-repo rollup (--json for the cockpit feed)
-brainiac reconcile      read-only drift: live tasks.md vs published status.json
+brainiac reconcile      read-only drift: epics + spec homes on disk vs published status.json
 brainiac handoff        grade harness + install gate + publish status + bootstrap
 brainiac epic-review    human epic-end review: --plan lens briefs / --floor gates / --comment PR mirror
 brainiac init           show the convention-provisioning plan (dry-run)

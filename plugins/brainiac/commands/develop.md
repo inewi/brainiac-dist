@@ -215,7 +215,7 @@ brainiac revise --epic EPIC-#### --reason "<what's amiss + why>"
 ```
 
 Advisories that never block: open markers / an in-flight amendment (epic validity); `reconcile`
-`head-moved` / `rollup-changed` (branch freshness). Single-candidate steps collapse to a
+`epic-added` / `epic-removed` (spec homes the published status.json does not name). Single-candidate steps collapse to a
 one-line confirm.
 
 ---
@@ -266,20 +266,22 @@ Then run the inner loop:
 5. **Code review** — `Skill({skill: "superpowers:requesting-code-review"})`. Correctness, test
    coverage, brainiac conventions, cross-repo contract adherence. On findings, loop back to step
    2 or step 3 — do not proceed past a failing review. **CHECKPOINT** — review approved.
-6. **Commit (path-scoped)** — stage **only** this task's paths — **never the whole tree** (no
-   blanket `-A` add) — so carried-across changes, other devs' merged work, and the churned
-   tracked `status.json` (which handoff owns) can't be swept into a task commit:
+6. **Commit (path-scoped)** — tick the task's checkbox in `tasks.md` (`- [ ]` → `- [x]`: the
+   checkbox IS the status — nothing else records progress), then stage **only** this task's
+   paths — **never the whole tree** (no blanket `-A` add) — so carried-across changes, other
+   devs' merged work, and the tracked `status.json` (which handoff owns) can't be swept into a
+   task commit:
 
    ```bash
-   git add -- <changed source and test paths>
+   git add -- <changed source and test paths> specs/<EPIC-####-slug>/tasks.md
    git commit -m "feat(<area>): <T-ID> <short summary>"
    ```
 
    One commit per task keeps the epic branch a sequence of reviewable units. The pre-commit gate
    runs automatically.
 7. **Handoff — mark complete and push** — publish the completed task. Handoff re-gates analyze,
-   refreshes `status.json`, appends the real duration to the throughput ledger, clears the start
-   marker, and (with `--push`) pushes the epic branch:
+   re-publishes `status.json` when its epics or spec homes changed, appends the real duration to
+   the throughput ledger, clears the start marker, and (with `--push`) pushes the epic branch:
 
    ```bash
    brainiac handoff --spec "specs/EPIC-####-slug" --repo "<repo>" --repo-name "<repo-name>" \
@@ -337,7 +339,7 @@ the origin-committed verdict and refuses otherwise.
 
 ## P9 — Finalize the epic
 
-When P6 reports all tasks done and `reconcile` is clean, push the final state and flip the draft
+When P6 reports all tasks done, push the final state and flip the draft
 PR → **ready-for-review**:
 
 ```bash
@@ -358,7 +360,8 @@ to continue on another task or epic.
 1. **Never skip TDD.** A failing test always comes before implementation.
 2. **Never bypass a gate.** If `brainiac check` fails, fix it — don't skip.
 3. **Never merge without review.** `superpowers:requesting-code-review` is mandatory.
-4. **Always handoff.** Every completed task updates `status.json`.
+4. **Always tick and handoff.** Every completed task ticks its `tasks.md` checkbox (the status)
+   and runs handoff (the throughput ledger, the push).
 5. **Never `--force`-push and never blanket-stage (no `-A` add).** Pushes degrade gracefully;
    commits stay path-scoped.
 6. **One task per session.** Focus. Finish. Hand off. Then start the next.

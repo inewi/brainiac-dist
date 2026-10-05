@@ -50,8 +50,8 @@ After a green handoff, execute the bootstrap THE ONE WAY in the target repo:
    schema-shaped tasks), then the minimal code to green it, then commits. Never
    ship code ahead of a test.
 4. The pre-commit `brainiac check` gate is mandatory — keep it green every commit.
-5. Re-run `brainiac reconcile` to confirm the published `status.json` matches the
-   `tasks.md` checkboxes as tasks complete; re-handoff to re-publish progress.
+5. Tick each task in `tasks.md` as it lands — the checkbox is the status
+   (`brainiac status` counts it live; nothing needs re-publishing).
 
 Report handoff as done only once the gate exits 0, the status is published, and
 the bootstrap is underway.

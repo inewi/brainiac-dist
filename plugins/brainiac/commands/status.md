@@ -1,5 +1,5 @@
 ---
-description: Show all tasks across repos — completed, in progress, blocked. Reads status.json from each reference repo to give a cross-repo view of the current state. Use to understand overall progress.
+description: Show all tasks across repos — completed, in progress, blocked. Reads each repo's tasks.md checkboxes (the status itself) to give a cross-repo view of the current state. Use to understand overall progress.
 allowed-tools: Bash, Read, Glob, Grep
 ---
 
@@ -7,20 +7,22 @@ allowed-tools: Bash, Read, Glob, Grep
 
 $ARGUMENTS
 
-Read `status.json` from the current repo and any referenced repos to build a
-cross-repo task dashboard.
+Read the `tasks.md` checkboxes of the current repo and any referenced repos to
+build a cross-repo task dashboard — the checkboxes ARE the status (`status.json`
+carries no copy of them). From a brain root, `brainiac status` prints the same
+counts for every reference repo and in-flight epic.
 
 ## Step 1: Read current repo status
 
-Read `.brainiac/status.json` in the current repo. Parse tasks, their completion
-state, and timestamps.
+Read each `specs/EPIC-*/tasks.md` in the current repo. Parse the tasks and their
+checkbox state (`- [x]` done, `- [ ]` open).
 
 ## Step 2: Find cross-repo references
 
 Check `tasks.md` (or the active spec's tasks.md) for `[repo:name]` annotations.
-For each referenced repo, check if `.references/<name>/.brainiac/status.json`
-exists and read it. If the file is missing, report the repo as "not grounded —
-run `brainiac ground` first." Do not error — just note the gap and continue.
+For each referenced repo, read the `specs/EPIC-*/tasks.md` checkboxes under
+`.references/<name>/`. If the clone is missing, report the repo as "not cloned —
+run `brainiac references` first." Do not error — just note the gap and continue.
 
 ## Step 3: Report
 
