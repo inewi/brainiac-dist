@@ -343,8 +343,10 @@ When P6 reports all tasks done, push the final state and flip the draft
 PR → **ready-for-review**:
 
 ```bash
-brainiac handoff --finalize-epic --repo "<repo>" --base <base-branch>
+brainiac handoff --finalize-epic --repo "<repo>"
 ```
+
+`--base` defaults to the branch the epic was cut from.
 
 This prints the PR URL. It does **not** auto-merge or auto-delete — review/CI merges, and the
 platform (or a later cleanup verb) deletes the branch.
