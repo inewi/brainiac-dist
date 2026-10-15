@@ -39,6 +39,12 @@ brainiac sequencer --repos "web/tasks.md,billing/tasks.md" --auto-edge
 With `--auto-edge`, the sequencer writes the modified `tasks.md` back to disk
 immediately. Pass `--dry-run` alongside `--auto-edge` to preview without writing.
 
+The edge always goes into the `(depends_on: …)` clause the parser reads — the first one of
+the row joined with its wrapped lines, wherever it sits — so a wrapped row keeps its own
+dependency. If a row's `(depends_on:` never closes, or the edit would change how the row
+parses (a stray line terminator), `--auto-edge` refuses: it names the file and the task,
+exits 1, and writes nothing — fix the row and re-run. `--dry-run` reports the same refusal.
+
 The sequencer identifies contract-publishing tasks by keywords in the task text:
 `export`, `expose`, `publish`, `api`, `endpoint`, `contract`, `interface`,
 `schema`, `openapi`, `grpc`, `proto`, `route`, `handler`, `provider`.

@@ -39,6 +39,21 @@ Requirements use EARS (Easy Approach to Requirements Syntax):
 
 Every requirement is testable. No "should," "could," or "might."
 
+Five ways requirements have failed in practice (reflect: `spec-ambiguous`):
+
+- **"Always" only when it is.** A ubiquitous requirement holds in every state — sign-out,
+  empty data, the error path. If it does not, write it state-driven and name the state.
+- **Both sides of every threshold.** A requirement that compares against a limit, a norm or a
+  count gets an acceptance example below, at and above it; the side nobody wrote down is the
+  one an old gate survives on.
+- **The observable outcome, checked.** A response requirement names what the caller sees — the
+  status code, error code or field — read from the code's current mapping, never assumed.
+- **Identity spelled out.** When records are matched, paired or de-duplicated, state the key and
+  what does NOT count as the same record.
+- **One home per rule.** A behaviour lives in exactly one requirement. `design.md` explains it
+  and never restates it differently, and nothing that changes behaviour lives only in an Open
+  Decision or a parenthetical.
+
 ## ID Minting
 
 - EPIC IDs are minted from `registry/ids.json` via `brainiac id mint EPIC`

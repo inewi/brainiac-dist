@@ -259,6 +259,14 @@ Then run the inner loop:
 3. **Debug if needed** — `Skill({skill: "superpowers:systematic-debugging"})`. brainiac context:
    check `.references/` for upstream contracts; `brainiac reconcile` for spec drift; `brainiac
    check --freshness` for stale steering; `brainiac check --scan` for added secrets.
+   Three traps that have cost real runs:
+   - **A local read can be stale.** A workspace or `.references/` clone can sit behind origin:
+     `git fetch` before concluding that work is missing, unlanded or different.
+   - **Ask the source, not a summary of it.** Re-query the database, the API or the producer
+     repo instead of trusting a note, a ticket or an earlier session's claim about it.
+   - **Check that your test is actually run.** If the repo's verify command (the broker
+     descriptor's `testCmd`) does not cover the project your test lives in, say so in the
+     handoff — a deliverable no verify runs is unverified.
 4. **Verify** — `Skill({skill: "superpowers:verification-before-completion"})`. Run `brainiac
    check` (passes paths, secrets, spec, freshness gates); confirm the implementation matches the
    EARS requirements exactly and touches no other task's `depends_on` graph. **CHECKPOINT** — all

@@ -148,7 +148,9 @@ or the checkboxes alone.
 
 **Never hand-author or hand-edit `dev-review.md`.** That file is a machine-generated
 readiness record owned by the `brainiac dev-review` verb (Phase 3) — it carries a
-`kind: dev-review-readiness` frontmatter marker, a digest of the reviewed spec, and an
+`kind: dev-review-readiness` frontmatter marker, a digest of the reviewed spec (`digest:`,
+the v1 value older binaries verify, plus `digest_v2:` from newer binaries — a reader verifies
+the record at the highest version it implements), and an
 ISO timestamp. The broker's reconcile parses exactly that shape to authorize dispatch;
 a hand-written `dev-review.md` is silently rejected (`no readiness record`), so the epic
 stays gated and the daemon never picks it up. Grill findings go in `design.md`
