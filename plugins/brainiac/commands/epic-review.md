@@ -28,9 +28,17 @@ brainiac epic-review --floor
 
 - **Exit 1 (red)** → STOP. Tell the operator which gate failed (base / analyze / gitleaks)
   — never review a broken tree; fix the tree first.
-- **Exit 2 (cannot-run)** → STOP and name the gate: install gitleaks, run
-  `brainiac ground`, or accept that a repo without a sandbox descriptor cannot probe
-  base-green here (`no-descriptor` — keep the repo suite green yourself before reviewing).
+- **Exit 2 (cannot-run)** → STOP and name the gate: install gitleaks, or run
+  `brainiac ground`. For `base=cannot-run (no-descriptor)` — a target repo has no sandbox
+  descriptor — ask the operator for the repo's suite command and re-run the floor with it as
+  the base gate:
+
+  ```bash
+  brainiac epic-review --floor --attest-base "<suite command, e.g. dotnet test>"
+  ```
+
+  A passing suite records `base=operator-attested` (the command, its exit code, the time and
+  the tip) — a passing gate; a failing one is `red` (exit 1).
 - **Exit 0** → proceed.
 
 ## 3. Plan
@@ -77,6 +85,12 @@ Assemble the envelope at `.brainiac/reviews/EPIC-####.json`:
 
 - `epic`, `repo`, `reviewedTipSha` (the epic tip you reviewed), `iterations`, `reviewers`,
   `floor` (the step-2 outcomes), `findings` (the FULL merged set with statuses), `verdict`.
+  With an attested base, also `baseAttestation` exactly as `--floor --attest-base` printed it
+  (`{ command, exitCode, at, tipSha }`) — the envelope is refused without it.
+- A finding that matches a decision the operator recorded in the spec (`[DECISION: …]`, or a
+  bullet dated `(operator YYYY-MM-DD …)` in `design.md`) gets `status: "by-design"`, severity
+  `info`, and `decision` quoting it with its `design.md:<line>` — never `refuted`. It never
+  blocks.
 - **The verdict is computed from the FULL findings set, never the fix selection**: any
   critical still open → `blocked` — even if the operator deliberately chose not to fix it.
   All findings fixed/refuted → `fixed-clean`; none found → `clean`.

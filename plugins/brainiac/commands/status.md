@@ -8,8 +8,8 @@ allowed-tools: Bash, Read, Glob, Grep
 $ARGUMENTS
 
 Read the `tasks.md` checkboxes of the current repo and any referenced repos to
-build a cross-repo task dashboard — the checkboxes ARE the status (`status.json`
-carries no copy of them). From a brain root, `brainiac status` prints the same
+build a cross-repo task dashboard — the checkboxes ARE the status (the status
+manifest carries no copy of them). From a brain root, `brainiac status` prints the same
 counts for every reference repo and in-flight epic.
 
 ## Step 1: Read current repo status

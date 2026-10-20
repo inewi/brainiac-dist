@@ -1,5 +1,5 @@
 ---
-description: Read-only drift differ — diff the epics and spec homes on disk against the published .brainiac/status.json. Never compares task checkboxes (they are the status) and never writes.
+description: Read-only drift differ — diff the epics and spec homes on disk against the repo's .brainiac/status.local.json cache. Never compares task checkboxes (they are the status) and never writes.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 
@@ -8,7 +8,8 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 Detect drift between the repo's live state and the published status manifest.
 brainiac specs live the ONE WAY, in `‹repo›/specs/EPIC-####-slug/`; reconcile
 recomputes status from those `tasks.md` checkboxes and compares it against the
-last published `.brainiac/status.json`. It is READ-ONLY and NEVER writes — the
+status cache `.brainiac/status.local.json` (a clone that has none falls back to a legacy
+tracked `.brainiac/status.json`). It is READ-ONLY and NEVER writes — the
 repo checkbox is the SSOT; reconcile only reports where the published manifest
 has fallen behind.
 
@@ -21,8 +22,8 @@ has fallen behind.
 brainiac reconcile --root "<repo>"
 ```
 
-The engine discovers the epics and their spec homes on disk, reads the published
-`.brainiac/status.json`, and diffs the two — never the task checkboxes (they are
+The engine discovers the epics and their spec homes on disk, reads the status
+cache, and diffs the two — never the task checkboxes (they are
 the status) and never the `generated_at`/`generated_from` stamps.
 
 ## 2. Act on the output
@@ -35,18 +36,18 @@ Every line names the checkout it diffed. Run at a brain root (a tree carrying
 checkout under `.references/` instead of diffing the brain repo itself, and
 never-grounded checkouts are skipped with a `never grounded — skipped` line.
 reconcile writes NOTHING; to clear the drift, re-publish via
-`/brainiac:handoff` (which writes the fresh `status.json`) — never hand-edit the
+`/brainiac:handoff` or `brainiac ground` (which write a fresh cache) — never hand-edit the
 manifest. Drift kinds:
 
-- `no-published-status` — no `.brainiac/status.json` (or it is malformed). The
-  repo was never handed off; run `/brainiac:handoff` to publish.
+- `no-published-status` — no `.brainiac/status.local.json` (or it is malformed). The
+  repo was never grounded on this machine; run `brainiac ground` to write it.
 - `epic-added` / `epic-removed` — an `EPIC-####` home appeared or vanished
   versus the published manifest.
 - `backref-changed` — an epic's spec back-reference moved.
 - `convention-version-changed` — the brainiac convention version advanced since
   publish.
 
-Task checkboxes are never compared: they ARE the status, and `status.json`
+Task checkboxes are never compared: they ARE the status, and the manifest
 carries no copy of them (`brainiac status` counts them live). A commit after
 publish is not drift either.
 

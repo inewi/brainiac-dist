@@ -72,8 +72,8 @@ deterministic resolution only happens in a multi-repo/cockpit view.
 From the P1 JSON, present one row per epic. Auto-select when there is exactly one epic;
 otherwise present the menu and let the developer choose which to work on.
 
-Alongside each row, read that epic's `.brainiac/status.json` (`dev_review` and `agentic`
-fields — absent means unknown, never inferred) and render a soft-gate badge: `reviewed ✓ /
+Alongside each row, read that epic's status cache `.brainiac/status.local.json` (`dev_review`
+and `agentic` fields — absent means unknown, never inferred) and render a soft-gate badge: `reviewed ✓ /
 agentic ✓` when both are stamped, `reviewed ✓` when only `dev_review` is set, `reviewed ✗`
 when `dev_review` is explicitly `none`, or `review: unknown` when the field is absent
 (an older manifest predating the stamps) or when the manifest itself is
@@ -149,7 +149,8 @@ verifies grounding on **every** entry path (including P0 resume) before any step
 Context before code. Read the branch's `specs/EPIC-####-slug/requirements.md` and `design.md`
 (the "why"), plus any `## Open Decisions` / `## Dev Review notes` / `[NEEDS-CLARIFICATION]`
 history — the `## Dev Review notes` carry what the implementer review verified and flagged
-to watch. If the repo's `.brainiac/status.json` carries a `context` field, read it first — it
+to watch. If the epic's `specs/<EPIC-####-slug>/handoff.json` carries a `context` field, read it first
+(an epic handed off before 2026-10-20 may carry it in `.brainiac/status.json` instead) — it
 is the PM-authored one-paragraph bridge from ship's handoff, the load-bearing orientation a
 cold start needs before re-deriving the spec. Then re-gate traceability and probe the code
 region the task touches:
@@ -215,7 +216,7 @@ brainiac revise --epic EPIC-#### --reason "<what's amiss + why>"
 ```
 
 Advisories that never block: open markers / an in-flight amendment (epic validity); `reconcile`
-`epic-added` / `epic-removed` (spec homes the published status.json does not name). Single-candidate steps collapse to a
+`epic-added` / `epic-removed` (spec homes the status cache does not name). Single-candidate steps collapse to a
 one-line confirm.
 
 ---
@@ -277,7 +278,7 @@ Then run the inner loop:
 6. **Commit (path-scoped)** — tick the task's checkbox in `tasks.md` (`- [ ]` → `- [x]`: the
    checkbox IS the status — nothing else records progress), then stage **only** this task's
    paths — **never the whole tree** (no blanket `-A` add) — so carried-across changes, other
-   devs' merged work, and the tracked `status.json` (which handoff owns) can't be swept into a
+   devs' merged work, and brainiac's own `.brainiac/` bookkeeping can't be swept into a
    task commit:
 
    ```bash
@@ -288,7 +289,7 @@ Then run the inner loop:
    One commit per task keeps the epic branch a sequence of reviewable units. The pre-commit gate
    runs automatically.
 7. **Handoff — mark complete and push** — publish the completed task. Handoff re-gates analyze,
-   re-publishes `status.json` when its epics or spec homes changed, appends the real duration to
+   refreshes the status cache when its epics or spec homes changed, appends the real duration to
    the throughput ledger, clears the start marker, and (with `--push`) pushes the epic branch:
 
    ```bash

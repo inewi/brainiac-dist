@@ -7,7 +7,8 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 Roll provisioned repos forward when brainiac's schema or paths change.
 brainiac is SemVer'd; each provisioned repo carries a
-`brainiac_convention_version` stamp in its `.brainiac/status.json`.
+`brainiac_convention_version` stamp in its status cache `.brainiac/status.local.json` (or, on
+a clone grounded before 2026-10-20, the legacy `.brainiac/status.json`).
 This command scans the given repos, detects any that are behind the
 current `CONVENTION_VERSION`, and applies migrations to bring them current.
 
@@ -18,7 +19,7 @@ brainiac migrate --repos "/path/to/web,/path/to/billing"
 ```
 
 Pass a comma-separated list of absolute paths to provisioned repo roots.
-The command reads each repo's published `status.json` and compares its
+The command reads each repo's status manifest and compares its
 `brainiac_convention_version` to the current version.
 
 Use `--dry-run` to preview which repos would be migrated without writing.

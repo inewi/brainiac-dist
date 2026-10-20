@@ -21,7 +21,7 @@ brainiac ground [--scan]
 /brainiac:ground
 ```
 
-Inventory the repo: detect languages, list symbols via LSP, classify endpoints and UI components, render steering docs (`tech.md`, `structure.md`, `product.md`), publish `status.json`. With `--scan`, also runs gitleaks advisory.
+Inventory the repo: detect languages, list symbols via LSP, classify endpoints and UI components, render steering docs (`tech.md`, `structure.md`, `product.md`), write the local status cache. With `--scan`, also runs gitleaks advisory.
 
 Run this FIRST in any repo brainiac hasn't seen. Re-run when the codebase changes significantly.
 
@@ -63,7 +63,7 @@ brainiac handoff --spec <dir> [--repo <path>] [--task-id T-###] [--dry-run]
 /brainiac:handoff
 ```
 
-Grade the execution harness, install the pre-commit gate, publish `status.json`, and bootstrap the target repo for implementation. This is the final governance step before development begins.
+Grade the execution harness, install the pre-commit gate, write the epic's `handoff.json` record, and bootstrap the target repo for implementation. This is the final governance step before development begins.
 
 ## Full Pipeline
 
@@ -96,7 +96,7 @@ Claude WHEN to use each skill and WITH WHAT brainiac-specific context.
 
 | Phase | brainiac provides | THEN delegates to |
 |---|---|---|
-| 1. Ground | Repo inventory, steering docs, status.json | — (pure brainiac) |
+| 1. Ground | Repo inventory, steering docs, status cache | — (pure brainiac) |
 | 2. Specify | ONE WAY scaffold, EARS enforcement, ID minting | `superpowers:brainstorming` — for ideation |
 | 3. Plan | Task graph validation, phase ordering | `superpowers:writing-plans` — for task decomposition |
 | 4. Sequencer | Cross-repo edge detection, contract injection | — (pure brainiac) |
@@ -124,14 +124,14 @@ superpowers provides bite-sized task decomposition and TDD-first planning.
 After handoff, developers run `/brainiac:develop` — a full guided session that takes a
 task from start to finish in one continuous workflow:
 
-1. **Find:** brainiac reads tasks.md + status.json, presents available tasks
+1. **Find:** brainiac reads tasks.md + the status cache, presents available tasks
 2. **Understand:** brainiac loads the spec context (requirements, design, dependencies)
 3. **TDD:** `superpowers:test-driven-development` — write failing test first
 4. **Implement:** minimal code to make the test pass
 5. **Debug:** `superpowers:systematic-debugging` — if tests fail or bugs appear
 6. **Verify:** `superpowers:verification-before-completion` — gates + acceptance
 7. **Review:** `superpowers:requesting-code-review` — before merging
-8. **Handoff:** brainiac publishes status.json, marks task complete
+8. **Handoff:** brainiac refreshes the status cache, marks task complete
 9. **Repeat:** brainiac offers the next available task or celebrates completion
 
 The developer types one command (`/brainiac:develop`) and stays in flow until the task

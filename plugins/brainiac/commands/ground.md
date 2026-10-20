@@ -1,18 +1,18 @@
 ---
-description: Inventory the current repo and provision PII-free steering docs + status.json under .brainiac/ (two-phase: dry-run, review, then --scan).
+description: Inventory the current repo and provision PII-free steering docs + a status cache under .brainiac/ (two-phase: dry-run, review, then --scan).
 allowed-tools: Bash(brainiac ground:*), Bash(brainiac check:*), Read, Glob
 ---
 
 # :ground — provision steering from the live repo
 
-Ground the current repository: inventory its symbols, endpoints, and UI components, then write three PII-free steering docs and a `status.json` manifest under `.brainiac/`. This is the second onboarding step after `:init`.
+Ground the current repository: inventory its symbols, endpoints, and UI components, then write three PII-free steering docs and a `status.local.json` manifest cache under `.brainiac/`. This is the second onboarding step after `:init`.
 
 Run this from the root of the target repo (the web or billing clone), not from the brainiac repo.
 
 ## How it protects the repo
 
 - **Denylist-at-ingest (never reads secrets).** The file walk that feeds the inventory excludes every denylisted path before opening it — `.env`, `.env.*`, `*.pem`, `*secret*.json`, `tests/fixtures/real-payroll/**`, `id_rsa`, and the rest of `denylistGlobs`. brainiac never ingests a denylisted file, so denylisted content cannot reach an artifact in the first place.
-- **HARD built-in artifact gate (zero external dependency).** Before brainiac writes ANY artifact it generates (the three steering docs and `status.json`), it scans that artifact's text for PII/secret content — valid-checksum PESEL, valid-checksum NIP, secret-bearing assignments (`*_SECRET`, `*API_KEY`, `*TOKEN`, `*PASSWORD`, …), and PEM private-key blocks — using only Node + regex. Any finding HALTS the command: it writes NOTHING (transactional) and reports each finding with the value masked. This is the guarantee the Phase-1 red-team must prove.
+- **HARD built-in artifact gate (zero external dependency).** Before brainiac writes ANY artifact it generates (the three steering docs and the status manifest), it scans that artifact's text for PII/secret content — valid-checksum PESEL, valid-checksum NIP, secret-bearing assignments (`*_SECRET`, `*API_KEY`, `*TOKEN`, `*PASSWORD`, …), and PEM private-key blocks — using only Node + regex. Any finding HALTS the command: it writes NOTHING (transactional) and reports each finding with the value masked. This is the guarantee the Phase-1 red-team must prove.
 - **Advisory gitleaks scan (non-blocking).** With `--scan`, brainiac additionally shells out to `gitleaks` to warn about pre-existing committed secrets in the repo. This is advisory only: it NEVER changes the exit code and NEVER blocks. If `gitleaks` is not installed, brainiac degrades silently and recommends `brew install gitleaks`.
 
 ## Phase 1 — dry-run and review
@@ -31,8 +31,9 @@ Run this from the root of the target repo (the web or billing clone), not from t
    - `.brainiac/steering/tech.md` — languages, grounded-file count, out-of-scope notes (e.g. the C# subsystem deferred this phase).
    - `.brainiac/steering/structure.md` — per-file symbol names.
    - `.brainiac/steering/product.md` — classified endpoints and UI components.
-   - `.brainiac/status.json` — epic ids, back-refs, integration branch (task progress is the
-     `tasks.md` checkboxes themselves, counted live — no copy here).
+   - `.brainiac/status.local.json` — epic ids, back-refs, integration branch (task progress is
+     the `tasks.md` checkboxes themselves, counted live — no copy here). A gitignored local
+     cache, derivable from `specs/` — never committed.
 
 ## Phase 2 — write and advisory scan
 
@@ -49,7 +50,7 @@ Run this from the root of the target repo (the web or billing clone), not from t
 
    On a RE-run where a prior `tech.md` was generated from a different HEAD, brainiac additionally prints one §15 staleness advisory (also non-blocking): on apply, `advisory: prior steering was stale (generated from a different HEAD) — regenerated with :ground`; on `--dry-run`, `advisory: prior steering is stale (generated from a different HEAD) — re-run without --dry-run to refresh`. A non-git/unborn-branch repo (no resolvable HEAD) does not emit it.
 
-2. Confirm `.brainiac/` was written and that `.gitignore` now ignores `.brainiac/*` (the directory contents) while un-ignoring `.brainiac/status.json` and `.brainiac/config.json` (the generated manifest and the hand-authored gate policy are the two tracked artifacts). Ignoring the contents with `.brainiac/*` — rather than the directory itself with `.brainiac/` — is what lets the `!` negations take effect; git cannot re-include a file beneath a directory that is itself excluded.
+2. Confirm `.brainiac/` was written and that `.gitignore` now ignores `.brainiac/*` (the directory contents) while un-ignoring `.brainiac/config.json` (the hand-authored gate policy is the one tracked artifact). A repo grounded by an older brainiac may also un-ignore `.brainiac/status.json`; ground leaves that line alone and never writes the file again. Ignoring the contents with `.brainiac/*` — rather than the directory itself with `.brainiac/` — is what lets the `!` negations take effect; git cannot re-include a file beneath a directory that is itself excluded.
 
 ## Batch — ground every reference repo at once
 

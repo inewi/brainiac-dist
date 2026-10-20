@@ -250,7 +250,7 @@ Run from the repo, Phase 1's context read and Phase 2's implementer grill still 
 to this one repo's spec. On green it writes a **readiness record** in the repo — reviewer
 identity, date, and a digest of the reviewed spec content — to
 `specs/EPIC-####-slug/dev-review.md`, plus a `dev_review` patch to the repo's own
-`.brainiac/status.json`, and prints the seam:
+local status cache (`.brainiac/status.local.json`), and prints the seam:
 
 ```text
 next: commit + push specs/EPIC-####-slug/dev-review.md to the epic branch, then brainiac dev-review reconcile --epic EPIC-####   (run at the brain, or let the post-merge hook do it)

@@ -1,5 +1,5 @@
 ---
-description: Hand a green spec off to execution the ONE WAY — gate on analyze, grade the harness (A–D), install the brainiac check hook, publish status.json, then drive subagent-driven TDD over tasks.md.
+description: Hand a green spec off to execution the ONE WAY — gate on analyze, grade the harness (A–D), install the brainiac check hook, write the epic's handoff.json, then drive subagent-driven TDD over tasks.md.
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 
@@ -7,14 +7,15 @@ allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 
 Promote an authored, analyzed spec to execution. brainiac specs live the ONE WAY,
 in `‹repo›/specs/EPIC-####-slug/`; handoff reads that home and writes ONLY the
-gated `.brainiac/status.json` plus the pre-commit hook. It is transactional and
+epic's gated `handoff.json` record inside it, the gitignored `.brainiac/status.local.json`
+cache, and the pre-commit hook. It is transactional and
 dry-run-able — it halts and reports rather than half-applying.
 
 **Argument:** the spec directory, e.g. `specs/EPIC-0007-add-export`. Optional:
 `--repo <path>` (target repo), `--repo-name <name>` + `--task-id T-###` (record
 real task duration in the throughput ledger), `--context "<paragraph>"` (ship's
 PM-authored one-paragraph bridge — the load-bearing design context stamped into
-`status.json`'s `context` field so a cold dev agent, esp. the autonomous broker,
+the epic's `specs/EPIC-####-slug/handoff.json` `context` field so a cold dev agent, esp. the autonomous broker,
 starts oriented before re-deriving the spec), `--dry-run` (grade + report, write
 nothing).
 
@@ -28,7 +29,9 @@ handoff first re-runs `analyze` as a hard gate — if it surfaces error findings
 prints `handoff: BLOCKED` and writes nothing; fix the spec (see `/brainiac:plan`
 and `/brainiac:analyze`) and re-run. On a green analyze it grades the repo's
 execution harness (A–D over test runner / hook gate / CI), installs the mandatory
-`brainiac check` pre-commit hook, and publishes a fresh `.brainiac/status.json`.
+`brainiac check` pre-commit hook, writes the epic's `handoff.json` (its `context` bridge and
+the base the epic was cut from — one file per epic, so sibling epic branches never conflict on
+it) and refreshes the local status cache.
 Use `--dry-run` first to preview the grade and TODOs without writing.
 
 ## 2. Act on the output

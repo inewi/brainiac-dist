@@ -26,7 +26,7 @@ Once the systematic-debugging skill is loaded, add these brainiac-specific check
 - **Cross-repo:** Is the bug in a dependant repo? Check `.references/` for the upstream contract. Run `brainiac sequencer` to verify `depends_on` edges.
 - **Spec drift:** Does the code match the spec? Run `brainiac check --spec <dir>` and `brainiac reconcile`.
 - **Freshness:** Are derived artifacts stale? Run `brainiac check --freshness`.
-- **Grounding:** Has the repo been grounded recently? Check `status.json` for `generated_at`. If older than the last commit, re-ground.
+- **Grounding:** Has the repo been grounded recently? Check `.brainiac/status.local.json` for `generated_at`. If older than the last commit, re-ground.
 - **Artifact integrity:** Run `brainiac check --scan` to verify no PII/secrets in generated artifacts.
 
 ## Step 3: Follow the systematic debugging process
