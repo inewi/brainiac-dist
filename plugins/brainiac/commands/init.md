@@ -34,7 +34,7 @@ devDep, `npx --no-install brainiac` also works.
    - `deprecations:` — files under the repo's configured deprecated globs
      (from `.brainiac/config.json`). These will be **marked deprecated, not
      removed**.
-   - `hooksToInstall:` — the gates to wire (`pre-commit`).
+   - `hooksToInstall:` — the gates to wire (`pre-commit`, `pre-push`; plus `post-merge` in the brain repo).
    - `willDelete:` — always `false`. brainiac never deletes.
 
 3. **Recommend a content secret-scanner (advisory, never failing).** Check
@@ -76,9 +76,11 @@ Apply is transactional and additive. Do these in order:
    brainiac install-hooks --root .
    ```
 
-   This wires `npx --no-install brainiac check` into `.husky/pre-commit` when
-   husky is present, otherwise into `.git/hooks/pre-commit`, and makes the hook
-   executable.
+   This wires `brainiac check` into the pre-commit and pre-push hooks:
+   `.husky/` when husky is active (a portable block that finds `brainiac` on
+   PATH or in `node_modules/.bin`), otherwise `.git/hooks/`, and makes the
+   hooks executable. Re-running it strips the lint and test lines an older
+   brainiac wrote there; the repo's own lines stay.
 
 2. **Deprecate-not-delete** the competing homes listed in the plan. For each
    path under `deprecations:`, leave the file in place and record it as

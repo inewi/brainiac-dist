@@ -1,12 +1,12 @@
 ---
-description: Scale-adaptive escape hatch — skip research/initiative/epic/clarify/analyze for single-repo, no-contract, small diffs (TDD + verification check + symbol/secret gate are NEVER skipped)
+description: Scale-adaptive escape hatch — skip research/initiative/new-epic/clarify/analyze for single-repo, no-contract, small diffs (TDD + verification check + symbol/secret gate are NEVER skipped)
 allowed-tools: Bash, Read, Edit, Write, Glob, Grep
 ---
 
 # /brainiac:quick
 
 The escape hatch for changes that don't need the full pipeline. `:quick` skips
-`research`, `initiative`, `epic`, `clarify`, `analyze`, and `reconcile` — but it
+`research`, `initiative`, a NEW `epic` (it attaches to an existing `EPIC-####`), `clarify`, `analyze`, and `reconcile` — but it
 **may not** skip writing a spec stub, TDD, the spec's runnable verification check,
 or the symbol/secret gate. These are the constitutional non-escapables (§7.3).
 
@@ -28,16 +28,28 @@ Confirm with the operator that ALL of these hold:
   one sentence.
 - **Repo is grounded.** `brainiac check` passes and the repo has a `.brainiac/`
   steering directory.
+- **An epic id.** `brainiac specify` needs one. A developer has no brain
+  checkout, so the usual source is an existing `EPIC-####` from the PM; a PM
+  with a brain checkout can mint one with `--brain-root <brain-checkout>`.
+  Ask the operator which. With neither, refuse: ids are minted only in the
+  brain.
 
-If any condition is not met, refuse and tell the operator to use the full
-pipeline.
+If a condition other than the epic id is not met, refuse and tell the operator
+to use the full pipeline. If only the epic id is missing, refuse with that
+remedy: get an `EPIC-####` from your PM, or pass `--brain-root` to a brain
+checkout.
 
 ## 2. Write the spec stub
 
-Scaffold a minimal spec the ONE WAY. Use `brainiac specify` for the title:
+Scaffold a minimal spec the ONE WAY with `brainiac specify`, passing the id
+source from step 1. Never run it without one: it would try to mint in the
+target repo and refuse.
 
 ```bash
-brainiac specify "<one-sentence title>" --repo <repo-path>
+# the epic id your PM minted (no mint):
+brainiac specify "<one-sentence title>" --repo <repo-path> --epic EPIC-####
+# or mint a fresh id from a brain checkout:
+brainiac specify "<one-sentence title>" --repo <repo-path> --brain-root <brain-checkout>
 ```
 
 The spec trio is scaffolded but the `requirements.md` and `design.md` are
