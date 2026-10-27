@@ -223,6 +223,18 @@ one-line confirm.
 
 ## P8 — Stamp start and TDD
 
+If the repo's `handoff.json` links a Jira task, move it to in-progress first — no prompt, under
+the developer's own Jira login:
+
+```bash
+brainiac jira transition --to in-progress --json --repo "<repo>"
+```
+
+`moved` → say it in one line. `not-linked` (exit 2) or `skipped` → say nothing (already there,
+past it, or a status brainiac never touches). `needs-human` (exit 4) or an error → tell the
+developer plainly (a missing Jira login is `brainiac jira login`) and **continue** — Jira never
+blocks a task.
+
 Stamp the start so handoff can record a real duration. Pass `--epic` (namespaces the marker) and
 the **same `--repo`** you will pass to handoff below, or the duration is silently lost:
 
@@ -359,6 +371,18 @@ brainiac handoff --finalize-epic --repo "<repo>"
 
 This prints the PR URL. It does **not** auto-merge or auto-delete — review/CI merges, and the
 platform (or a later cleanup verb) deletes the branch.
+
+Then, for a repo whose `handoff.json` links a Jira task — again without asking — move it to the
+review queue and link the PR:
+
+```bash
+brainiac jira transition --to in-review --json --repo "<repo>"
+brainiac jira link-pr --pr <the PR URL> --repo "<repo>"
+```
+
+Same reporting as P8: `moved`/`created` in one line, `not-linked`/`skipped` silent,
+`needs-human` or an error loud — and the finalize stands either way. A human reviewer takes the
+task on from there; brainiac never moves it to the done status.
 
 Before ending the session, write a brief CC memory note — what was built, key decisions,
 gotchas, cross-repo notes — so the next session starts informed. Run `/brainiac:develop` again

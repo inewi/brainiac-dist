@@ -103,6 +103,13 @@ brainiac epic-review --comment .brainiac/reviews/EPIC-####.json
 
 Non-GitHub remote or no `gh` → the CLI prints the rendered comment for manual pasting.
 
+If a fix changed a spec file and the repo's `handoff.json` links a Jira task, offer — never post
+unasked — a short note on that task saying what changed:
+
+```bash
+brainiac jira comment --spec specs/EPIC-####-slug --body-file <a markdown file with the note>
+```
+
 > **Substring-masking caveat:** the secret scan is substring-tolerant — a legitimate
 > finding whose evidence quotes code like `authToken = getToken(req)` can be
 > masked-and-blocked. If a masked finding looks like a false positive, resolve it by
