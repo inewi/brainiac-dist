@@ -55,7 +55,7 @@ inventory and the spec — never raw source, never denylisted paths. The externa
 branch is mandatory: for every vendor in the flow, what state does it keep server-side
 that the design doesn't touch, and where does its prod behavior diverge from sandbox?
 
-## 3. Record the results — markers and decisions only
+## 3. Record the results — markers, decisions and the decision log
 
 grill writes **nothing canonical**. As branches resolve or stay open, record them in the
 existing homes:
@@ -63,6 +63,10 @@ existing homes:
 - **Unresolved branch** → add a `[NEEDS-CLARIFICATION] <the open question>` marker to the
   affected `requirements.md`/`design.md` line. The next `/brainiac:clarify` run resolves
   it (at most 5, one at a time).
+- **Every question you asked, answered or not** → one entry under `## Decisions`: the question,
+  EVERY option, the choice, why, the date and the repos affected (`### D-NNN …`; shape in
+  `plugins/brainiac/templates/spec/design.md`). Single-repo → that repo's `design.md`; spans
+  repos → the brain's `epic.md`. `check --spec` validates the shape; dev-review replays the log.
 - **Hard-to-reverse, surprising, real-trade-off decision** → record under `## Open
   Decisions` in `design.md`. Do not create a glossary file; do not author an ADR (at most
   prompt the operator to add one under the existing `docs/adr/` numbering).

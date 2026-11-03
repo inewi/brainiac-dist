@@ -44,6 +44,11 @@ the `## Tasks` checklist to match. Keep the runnable `## Verification` check
 accurate — if the clarification changes what "done" means, update the check.
 Never delete a marker without recording the resolved decision.
 
+Also log each question you asked as an entry under `## Decisions` in `design.md`: the question,
+EVERY option you offered, the choice, why, the date and the repos affected (`### D-NNN …`; shape in
+`plugins/brainiac/templates/spec/design.md`). A decision spanning repos goes in the brain's
+`epic.md ## Decisions`. The `[DECISION: …]` replacement stays; the log entry is what dev-review replays.
+
 ## 4. Re-gate until clean
 
 ```bash

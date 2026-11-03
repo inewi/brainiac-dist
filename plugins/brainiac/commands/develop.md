@@ -9,12 +9,15 @@ $ARGUMENTS
 
 This is the complete developer workflow — git-native from the first step. It enumerates the
 real `epic/EPIC-####-slug` branches in your repo, drops you onto one, grounds, picks the next
-unblocked task, and runs the full cycle: TDD → implement → debug → review → verify → commit →
-push → handoff, then finalizes the epic when the last task lands. It runs as a continuous
+unblocked task, and runs the broker's own per-task mechanics on your checkout and your git
+login: `develop brief` → TDD → `develop verify` → `develop land`, then the epic-end `develop
+review` → `epic-review --finalize-round`, then finalizes the epic when the last task lands. It runs as a continuous
 session — you stay in flow until the task is done.
 
-The mechanics are done by the `brainiac develop` verbs; the one thing that stays your judgment
-is the **P7 decision gate**. Run the CLI as bare `brainiac <verb>` (the prebuilt binary is on
+The mechanics are done by the `brainiac develop` verbs — the same code the autonomous broker runs
+(docs/internals/develop-local.md in the brainiac repo); what stays your judgment is the **P7
+decision gate**, the **fix threshold** at the epic end and the **push confirmation** before a task
+lands. Run the CLI as bare `brainiac <verb>` (the prebuilt binary is on
 your PATH). If `$ARGUMENTS` names an epic (`EPIC-####`) or a task (`T-###`), jump straight to
 **P3** to enter that epic — P6 then resolves the named task (or the next unblocked one) once
 you're on-branch and grounded.
@@ -232,7 +235,7 @@ brainiac jira transition --to in-progress --json --repo "<repo>"
 
 `moved` → say it in one line. `not-linked` (exit 2) or `skipped` → say nothing (already there,
 past it, or a status brainiac never touches). `needs-human` (exit 4) or an error → tell the
-developer plainly (a missing Jira login is `brainiac jira login`) and **continue** — Jira never
+developer plainly (missing `BRAINIAC_JIRA_USER_*` variables: `brainiac jira login` names them) and **continue** — Jira never
 blocks a task.
 
 Stamp the start so handoff can record a real duration. Pass `--epic` (namespaces the marker) and
@@ -242,9 +245,20 @@ the **same `--repo`** you will pass to handoff below, or the duration is silentl
 brainiac task-start --task-id <TASK_ID> --epic EPIC-#### --repo "<repo>"
 ```
 
-Then run the inner loop:
+Then run the inner loop. Pass the repo's commands to every `develop` verb below: `--descriptor
+<file>` (the broker's sandbox descriptor JSON: build/test commands and caps) or, when the repo
+has none, `--attest-test "<your suite command>"` (+ `--attest-build "<cmd>"`).
 
-1. **TDD** — `Skill({skill: "superpowers:test-driven-development"})`. Write a failing test first
+1. **Brief** — the task brief the broker hands its agent, built from this checkout's spec, plus
+   the repo's `.claude/rules` and the skills they name:
+
+   ```bash
+   brainiac develop brief --task T-### --attest-test "<your suite command>"
+   ```
+
+   Read it before the first test. It tells you not to tick the box and not to push: `develop
+   land` does both.
+2. **TDD** — `Skill({skill: "superpowers:test-driven-development"})`. Write a failing test first
    that covers the acceptance criteria from the EARS requirement, and run it to confirm it
    fails. The failing test is the readiness proof — if the criteria can't be a red test, loop
    back to P7. The test lives next to the implementation; if the task depends on another repo's
@@ -259,7 +273,7 @@ Then run the inner loop:
    dependency, and mirror a sibling test's mock framework, naming, and SUT-factory style
    (mocks + a `CreateSut()`-style helper) before writing the first failing test — copy the
    repo's real conventions, never invent a skeleton. **CHECKPOINT** — test fails.
-2. **Implement** — write the minimal implementation to pass the test, following brainiac
+3. **Implement** — write the minimal implementation to pass the test, following brainiac
    conventions: `_` prefix for unused-but-arity-required parameters, kebab-case files, all
    public functions exported for the grounding inventory. Match the SURROUNDING repo's
    conventions before adding schema elements (mirror the neighboring column/property/file
@@ -269,7 +283,7 @@ Then run the inner loop:
    over permanent project-file mutations — a csproj/manifest edit outlives the task, so reach
    for it last. Run the test; loop back if it fails.
    **CHECKPOINT** — test passes.
-3. **Debug if needed** — `Skill({skill: "superpowers:systematic-debugging"})`. brainiac context:
+4. **Debug if needed** — `Skill({skill: "superpowers:systematic-debugging"})`. brainiac context:
    check `.references/` for upstream contracts; `brainiac reconcile` for spec drift; `brainiac
    check --freshness` for stale steering; `brainiac check --scan` for added secrets.
    Three traps that have cost real runs:
@@ -280,49 +294,58 @@ Then run the inner loop:
    - **Check that your test is actually run.** If the repo's verify command (the broker
      descriptor's `testCmd`) does not cover the project your test lives in, say so in the
      handoff — a deliverable no verify runs is unverified.
-4. **Verify** — `Skill({skill: "superpowers:verification-before-completion"})`. Run `brainiac
-   check` (passes paths, secrets, spec, freshness gates); confirm the implementation matches the
-   EARS requirements exactly and touches no other task's `depends_on` graph. **CHECKPOINT** — all
-   gates pass.
-5. **Code review** — `Skill({skill: "superpowers:requesting-code-review"})`. Correctness, test
-   coverage, brainiac conventions, cross-repo contract adherence. On findings, loop back to step
-   2 or step 3 — do not proceed past a failing review. **CHECKPOINT** — review approved.
-6. **Commit (path-scoped)** — tick the task's checkbox in `tasks.md` (`- [ ]` → `- [x]`: the
-   checkbox IS the status — nothing else records progress), then stage **only** this task's
-   paths — **never the whole tree** (no blanket `-A` add) — so carried-across changes, other
-   devs' merged work, and brainiac's own `.brainiac/` bookkeeping can't be swept into a
-   task commit:
+5. **Check, then commit (path-scoped)** — `Skill({skill: "superpowers:verification-before-completion"})`.
+   Run `brainiac check` (paths, secrets, spec, freshness gates); confirm the implementation
+   matches the EARS requirements exactly and touches no other task's `depends_on` graph. Then
+   commit your own work, staging **only** this task's paths — **never the whole tree** (no blanket
+   `-A` add) — so other devs' merged work and brainiac's own `.brainiac/` bookkeeping can't be
+   swept into a task commit. **Do not tick the checkbox**: `develop land` ticks it.
 
    ```bash
-   git add -- <changed source and test paths> specs/<EPIC-####-slug>/tasks.md
+   git add -- <changed source and test paths>
    git commit -m "feat(<area>): <T-ID> <short summary>"
    ```
 
-   One commit per task keeps the epic branch a sequence of reviewable units. The pre-commit gate
-   runs automatically.
-7. **Handoff — mark complete and push** — publish the completed task. Handoff re-gates analyze,
-   refreshes the status cache when its epics or spec homes changed, appends the real duration to
-   the throughput ledger, clears the start marker, and (with `--push`) pushes the epic branch:
+   The pre-commit gate runs automatically. **CHECKPOINT** — all gates pass, tree clean.
+6. **Verify** — the broker's verify gates on a second checkout of your commits: no foreign
+   checkbox, no spec-text edit, the red-task shape, no change to Claude/MCP/hook/CI config,
+   `verification.md` append-only, then build and test:
+
+   ```bash
+   brainiac develop verify --task T-### --attest-test "<your suite command>"
+   ```
+
+   This replaces the old per-task code-review step: the task is judged by the gates, the epic
+   gets ONE review at its end (P9a). On a refusal, fix the named gate and commit again —
+   **CHECKPOINT** — verify passes.
+7. **Land (push confirmation)** — ask the developer to confirm first: landing pushes the epic
+   branch and posts on the epic PR. On `[y]`:
+
+   ```bash
+   brainiac develop land --task T-### --attest-test "<your suite command>"
+   ```
+
+   Land re-runs verify (nothing lands unverified), runs the OSV scan if a dependency manifest
+   changed, ticks the box in one `agent: T-###` commit on top of yours, pushes with **your** git
+   login (never a force), then opens or refreshes the draft epic PR and posts the per-task
+   comment with your `gh` token (held in memory only). Add `--brain-root <brain checkout>` to
+   also flip a committed initiative to in-progress on the first landing. A refusal pushes and
+   posts nothing; a PR fault after the push exits 1 with the commit already on origin.
+
+   Then the bookkeeping only — **no** `--push`, land already pushed. It re-gates analyze, refreshes
+   the status cache, appends the real duration to the throughput ledger and clears the start
+   marker; pass the **same `--repo`** as `task-start`:
 
    ```bash
    brainiac handoff --spec "specs/EPIC-####-slug" --repo "<repo>" --repo-name "<repo-name>" \
-     --task-id <TASK_ID> --epic EPIC-#### --push
+     --task-id <TASK_ID> --epic EPIC-####
    ```
 
-   Handoff warns when the working tree still has uncommitted paths — that usually means step 6's
-   path-scoped commit missed files (e.g. a signature change rippling into callers/test helpers).
-   Fold stragglers in with `git commit --amend` (pre-push) or a follow-up commit before moving
-   on; under `--strict`, tracked modifications hard-fail the handoff.
-
-   The push is **write-access-aware** and **degrades, never throws**: on offline / protected /
-   no-write / non-fast-forward, the local commit stands, handoff prints *"committed locally on
-   `epic/EPIC-####-slug`; run `git fetch origin <branch> && git rebase origin/<branch>`
-   then retry"*, and exits 0. Add `--strict` to make a skipped push non-zero (for CI). Pushes are
-   plain `git push -u` — **never** `--force`. When `--repo` is a PM workspace under
-   `.references/.epics/`, handoff auto-roots the ledger in the brain so durations survive a
-   later `workspace discard`; pass `--ledger-root <brain-root>` only for layouts outside that
-   shape.
-8. **Capture a retro (best-effort)** — right after handoff returns, record what the task hit
+   Handoff warns when the working tree still has uncommitted paths — fold stragglers into a
+   follow-up commit and land again. When `--repo` is a PM workspace under `.references/.epics/`,
+   handoff auto-roots the ledger in the brain; pass `--ledger-root <brain-root>` only for
+   layouts outside that shape.
+8. **Capture a retro (best-effort)** — right after the bookkeeping handoff returns, record what the task hit
    (never blocks). Friction vocabulary: `spec-ambiguous`, `missing-fixture`,
    `cross-repo-contract`, `tooling`, `gate-false-positive`, `skill-silent`, `skill-misleading`,
    `decision`, `trade-off`, `other`:
@@ -350,11 +373,37 @@ when the epic is done.
 
 ## P9a — Epic-end review
 
-When P6 reports all tasks done, run **`/brainiac:epic-review`** before finalizing: floor →
-reviewer subagents per lens → operator-chosen fix threshold → TDD fixes → re-review →
-committed verdict envelope + PR comment. Do **not** `handoff --finalize-epic` while the
-verdict is `blocked` unless you pass `--override-review-block "<reason>"` — finalize reads
-the origin-committed verdict and refuses otherwise.
+When P6 reports all tasks done, run the broker's epic-end review ONCE before finalizing. The
+floor (base-green + analyze + gitleaks), Claude Code's own `/code-review high --fix` and the
+structuring pass run on a clone of your checkout, booked on a local ledger and told what everyone
+already posted on the PR:
+
+```bash
+brainiac develop review --descriptor <file> --brain-root <brain checkout>
+```
+
+It writes `.brainiac/develop/work/review-round-EPIC-####.json` (findings, floor, validated
+`considered`) and prints the hand-off. A fix the review made comes back as a fast-forward of your
+checkout, never pushed. An unreadable PR conversation or a missing report is a refusal, never a
+clean review.
+
+**Fix threshold (your call).** Show the open findings by severity and ask the developer which
+severity to fix (critical-only, major and up, everything). Fix those with TDD, commit, run
+`develop verify` on them, and re-run `develop review` once to confirm — the findings file is
+rewritten each run. Findings you leave open stay in the envelope; the verdict is computed, never
+typed.
+
+Then ONE verb closes the round: `brainiac epic-review --finalize-round <findings.json>`
+(envelope, commit, readiness record, push, the verdict comment edited in place, reconcile). Do
+**not** `handoff --finalize-epic` while the verdict is `blocked` unless you pass
+`--override-review-block "<reason>"` — finalize reads the origin-committed verdict and refuses
+otherwise.
+
+**One review owner per epic end.** For an epic you develop here, this session's review IS the
+review. Do not offer "run the review on the broker host" — the broker's review stage belongs to
+epics the broker developed — and do not re-run the review to re-check what it already settled.
+The PR review lane answers only when someone posts `/brainiac review` on the PR; it is not part
+of finishing the epic. After a revise, a `blocked` verdict stays until the review is run again.
 
 ---
 
@@ -394,9 +443,10 @@ to continue on another task or epic.
 
 1. **Never skip TDD.** A failing test always comes before implementation.
 2. **Never bypass a gate.** If `brainiac check` fails, fix it — don't skip.
-3. **Never merge without review.** `superpowers:requesting-code-review` is mandatory.
-4. **Always tick and handoff.** Every completed task ticks its `tasks.md` checkbox (the status)
-   and runs handoff (the throughput ledger, the push).
+3. **Never land unverified, never skip the epic review.** `develop verify` gates every task;
+   `develop review` + `epic-review --finalize-round` is the one review of the epic end.
+4. **Always land and hand off.** Every completed task lands through `develop land` (it ticks the
+   `tasks.md` checkbox — the status — and pushes) and runs handoff (the throughput ledger).
 5. **Never `--force`-push and never blanket-stage (no `-A` add).** Pushes degrade gracefully;
    commits stay path-scoped.
 6. **One task per session.** Focus. Finish. Hand off. Then start the next.

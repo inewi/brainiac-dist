@@ -145,6 +145,11 @@ Present: "Wireframes generated. Review and approve? [Y/n]"
 changes and re-presents. After 3 rounds without agreement, record the
 disagreement in design.md under `## Open Decisions` and proceed.
 
+**Log the picks.** Each question this section asks the PM — wireframe accept/skip, detailed-mockup
+pick, UI placement — is logged under `## Decisions` in `design.md`: the question, EVERY option, the
+choice, why, the date, the repos affected (`### D-NNN …`; shape in the design.md template). Log the
+epic-level mockup pick in the brain's `epic.md ## Decisions` too.
+
 **Fallback:** If token limit is reached, reduce screen count (most complex first)
 and note the limitation.
 

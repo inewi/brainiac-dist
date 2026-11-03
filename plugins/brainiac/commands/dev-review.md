@@ -22,7 +22,7 @@ It runs once per epic, over every affected repo, and its pass/fail is what
 `brainiac approve` requires before an epic can become agent-dispatchable — no dev
 review, no autonomous run.
 
-**Argument:** `--epic EPIC-####` — the epic to review. There is no default and no
+**Argument:** `--epic EPIC-####` — the epic to review (the flow opens with a Quick-or-detailed ask, Phase 0.5). There is no default and no
 per-task or per-spec mode; the review and its stamp are epic-scoped.
 
 ---
@@ -40,6 +40,22 @@ ls "epics/EPIC-####-slug/epic.md"
 If it does not exist, refuse — `dev-review` reviews an existing, handed-off epic; it
 never mints (`/brainiac:ship` mints). This command touches no code and writes no
 stamp until Phase 3; Phases 1-2 are read-only reconnaissance.
+
+---
+
+## Phase 0.5: Mode — Quick or Detailed (ask first)
+
+Before any reading, ask the operator, exactly:
+
+> **Quick (today's flow) or detailed?**
+
+- **Quick** — today's flow, unchanged: Phases 1-4 below run as written, nothing added.
+- **Detailed** — the same Phases 1-4, plus the **decision walk-through** (Phase 1.5) between the
+  context read and the implementer grill. Pick this for an epic whose ship-time choices the
+  implementer should re-examine before building.
+
+Never choose for the operator; if they gave no answer, ask again. Everything else in this command —
+the stamp, the readiness record, `approve`, what the broker reads — is identical in both modes.
 
 ---
 
@@ -82,6 +98,51 @@ anyway. Never `reset`/`rebase` a home to force the refresh.
 If **neither** home resolves for a repo, do not skip it silently — record it as a
 blocking finding for that repo (spec unreachable) and carry it into Phase 3's report.
 A repo dev-review cannot read is a repo it cannot clear.
+
+---
+
+## Phase 1.5: Decision walk-through (detailed mode only)
+
+Skip this phase on Quick. Read-only until a decision actually changes.
+
+**(a) The epic in brief.** Show a short description of the whole epic: the `## Goal` from
+`epic.md`, then one line of scope per repo from the `## Per-repo spec map` / each repo's
+`requirements.md`. When `epic.md` carries `mockups:` entries, print each canvas link
+(`<slug>#<id>`) so the operator can open the design the epic was shipped from.
+
+**(b) One decision at a time, grill-me style.** Load the log for ONLY the repos under review:
+
+```bash
+brainiac decisions --epic EPIC-#### --repo <repo>[,<repo>…] --json
+```
+
+Cross-repo decisions (the brain's `epic.md ## Decisions`) always show; a per-repo decision (that
+repo's `design.md ## Decisions`) shows only when its repo is under review — a frontend-only
+review never walks backend-only questions. For each decision, in log order, show the question,
+EVERY option with its text, the current choice and why it was made, then ask: **keep it, or
+change it?** Wait for the answer before showing the next. Every decision is shown — settled ones
+too, not only the deferred ones.
+
+**(c) A changed decision.** Edit the spec to match (the affected `FR-###`, `## Affected symbols`,
+tasks), update that entry's `Choice` and `Why` in the log with the new date (never delete the
+rejected option), correct the epic prose if the Goal states the old choice, then re-gate before
+the next decision:
+
+```bash
+brainiac check --spec <spec-home>
+brainiac analyze --spec <spec-home>
+```
+
+Fix what fails, then continue. A change that reaches another repo's spec is made there too.
+
+**(d)** When the walk is done, continue into Phase 2 — the existing grill, then the gate and the
+stamp (Phase 3).
+
+**An epic with no log.** When `brainiac decisions` reports no log (`hasLog: false`: the epic was
+shipped before the decision log existed), say so plainly, then fall back to what exists: the
+`## Open Decisions` entries, `[DECISION: …]` replacements and dated operator bullets in each
+`design.md`. Show them labelled **"reconstructed, may be incomplete"** and walk them the same way.
+Never invent a decision, an option or a reason that no artifact records; say "not recorded" instead.
 
 ---
 
@@ -253,7 +314,7 @@ identity, date, and a digest of the reviewed spec content — to
 local status cache (`.brainiac/status.local.json`), and prints the seam:
 
 ```text
-next: commit + push specs/EPIC-####-slug/dev-review.md to the epic branch, then brainiac dev-review reconcile --epic EPIC-####   (run at the brain, or let the post-merge hook do it)
+next: commit + push specs/EPIC-####-slug/dev-review.md to the epic branch, then brainiac dev-review reconcile --epic EPIC-####   (run at the brain, or let the broker daemon do it)
 ```
 
 The record never touches the brain by itself. A **brain-credentialed** actor mirrors it up:
@@ -273,9 +334,9 @@ a mirrored repo becomes dispatchable immediately. The epic-wide `agentic: approv
 **derived** only once `agentic_repos` covers every repo the epic lists. There is no separate
 `brainiac approve` call on this path; the review that proves a repo implementer-ready is the
 same act that authorizes the broker for it. The **post-merge hook** installed on the brain's git
-checkout runs `brainiac dev-review reconcile --all` automatically, so bringing a reviewed epic
-branch into the brain (a merge) mirrors it without an operator remembering to run reconcile by
-hand.
+checkout runs `brainiac dev-review reconcile --all --plan` after a merge: it prints which epics a
+reconcile would mirror or re-arm and writes nothing. Apply with `brainiac dev-review reconcile
+--epic EPIC-####` (or `--all`) at the brain — or let the broker daemon's own reconcile do it.
 
 **Brain-first + `approve` stays the alternative for brain-holding operators.** Running
 `dev-review` from the brain root behaves exactly as Phases 0-4 above describe — it stamps
