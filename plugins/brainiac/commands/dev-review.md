@@ -283,7 +283,7 @@ actually exist on disk, or the epic stays gated. Confirm it before declaring don
 Once the stamp lands, print the seam into authorization, exactly:
 
 ```text
-next: brainiac approve --epic EPIC-#### (interactive)
+next: commit and push epic.md, then brainiac approve --epic EPIC-#### (interactive)
 ```
 
 Run from the brain root, `dev-review` grants no agentic authorization itself — `brainiac
